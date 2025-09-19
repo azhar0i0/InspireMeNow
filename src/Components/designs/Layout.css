@@ -1,0 +1,32 @@
+/* Main layout */
+.layout {
+  width: 100%;
+}
+
+/* Main content with sidebar space */
+.main-content {
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+
+/* Hide sidebar margin on mobile */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 240px;
+  }
+}
+
+/* Topbar for mobile */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFA33C;
+  padding: 10px 15px;
+}
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}

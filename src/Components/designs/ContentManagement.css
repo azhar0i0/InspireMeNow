@@ -1,0 +1,383 @@
+/* ===== Base Layout ===== */
+.content-management {
+  background: #F9E19D;
+  color: black;
+  font-family: "Inter", sans-serif;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Headings */
+.page-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+}
+.sub-text {
+  font-size: 14px;
+  color: #333;
+}
+
+/* ===== Select Mood + Add Button ===== */
+.select-mood-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.select-mood-row .form-select {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+.select-mood-row .btn-primary {
+  flex: 0 0 auto;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  background: #FFA33C;
+  border: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: black;
+  transition: 0.2s;
+}
+.btn-primary:hover {
+  background: #FFEDBB;
+  color: black;
+}
+.btn-outline-info {
+  border: 1px solid #4b7bec;
+  color: #4b7bec;
+  font-size: 12px;
+}
+.btn-outline-info:hover {
+  background: #4b7bec;
+  color: white;
+}
+.btn-outline-danger {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  font-size: 12px;
+}
+.btn-outline-danger:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* ===== Table ===== */
+.custom-card {
+  background: #FFEDBB;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 12px rgba(96, 111, 131, 0.1);
+}
+.custom-card-header {
+  background: #FFA33C;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-bottom: 1px solid #d6b971;
+}
+.custom-table {
+  font-size: 13px;
+  width: 100%;
+  min-width: 500px;
+}
+.custom-table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  background: #FFEDBB;
+  padding: 12px 10px;
+}
+.custom-table tbody td {
+  padding: 12px 10px;
+  border-top: 1px solid #d6b971;
+}
+.custom-table tbody tr:hover td {
+  background: #f9e6a7;
+}
+
+/* Live Status Toggle */
+.form-check-input {
+  cursor: pointer;
+}
+.form-check-input:checked {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+/* ===== Add/Edit Modal ===== */
+.add-version-modal {
+  background: #FFEDBB !important;
+  border-radius: 12px;
+  padding: 1rem;
+}
+.version-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.version-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.version-tabs::-webkit-scrollbar-thumb {
+  background: #c4a85d;
+  border-radius: 4px;
+}
+.tab-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #d6b971;
+  background: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.tab-pill.active {
+  background: #d6b971;
+  border-color: #c4a85d;
+}
+
+/* Textarea */
+.content-textarea {
+  border-radius: 10px;
+  resize: none;
+}
+.char-count {
+  font-size: 12px;
+  color: #555;
+  text-align: right;
+}
+
+/* Upload Box */
+.upload-box {
+  border: 2px dashed #d6b971;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+  padding: 20px;
+}
+.upload-box:hover {
+  border-color: #c4a85d;
+}
+.upload-icon {
+  font-size: 40px;
+  color: #d6b971;
+}
+
+/* Make Live Toggle */
+.make-live-toggle {
+  border: 1px solid #d6b971;
+  border-radius: 8px;
+  background: #FFEDBB;
+}
+
+/* Modal Buttons */
+.cancel-btn {
+  background: #ccc !important;
+  border: none;
+  color: black !important;
+}
+.cancel-btn:hover {
+  background: #aaa !important;
+}
+.save-btn {
+  background: #d6b971 !important;
+  border: none;
+  color: black !important;
+}
+.save-btn:hover {
+  background: #c4a85d !important;
+}
+
+/* Delete Modal */
+.delete-modal {
+  background: #FFEDBB;
+  border-radius: 12px;
+}
+.delete-icon {
+  font-size: 40px;
+  color: #ef4444;
+}
+.delete-warning {
+  font-size: 13px;
+  color: #b91c1c;
+}
+.delete-btn {
+  background: #ef4444 !important;
+  border: none;
+}
+.delete-btn:hover {
+  background: #dc2626 !important;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .content-management {
+    padding: 12px;
+  }
+  .page-header h3 {
+    font-size: 18px;
+  }
+  .form-select{
+    width: 50% !important;
+  }
+  /* Stack Select Mood + Add Button in column on mobile */
+  .select-mood-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .select-mood-row .form-select,
+  .select-mood-row .btn-primary {
+    width: 100%;
+  }
+
+  /* Card stays same but table scrolls horizontally */
+  .custom-card {
+    border-radius: 8px;
+    overflow-x: auto;      /* horizontal scroll container */
+    -webkit-overflow-scrolling: touch; /* smooth on iOS */
+  }
+  .custom-card-header{
+    width: 600px !important;
+  }
+
+  /* Table keeps its width, user scrolls */
+  .custom-table {
+    font-size: 12px;
+    min-width: 600px;      /* prevents headers/fields from breaking */
+    width: 100%;
+    table-layout: fixed;   /* keeps columns aligned */
+  }
+
+  /* Table head stays normal */
+  .custom-table thead th {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+}
+
+/* Force opaque backdrop */
+.modal-backdrop.show {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65); /* dark backdrop */
+  z-index: 1040;
+}
+
+/* Center modal properly */
+/* Backdrop */
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* dark overlay */
+  z-index: 1040;
+}
+
+/* Modal container */
+.modal-custom {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  width: 90%;
+  max-width: 500px;
+}
+
+/* Modal content */
+.delete-modal {
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: #ffffff !important; /* solid white */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border: none;
+  overflow: hidden;
+}
+
+/* Delete icon */
+.delete-icon {
+  font-size: 3rem;
+  color: #dc3545;
+}
+
+/* Buttons */
+.cancel-btn {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+}
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+}
+.delete-btn:hover {
+  background: #c82333;
+}
+
+/* Professional table loader (four bouncing dots) */
+.loader {
+  display: inline-block;
+  position: relative;
+  width: 40px;
+  height: 20px;
+}
+
+.loader div {
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: orange;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.loader div:nth-child(1) {
+  left: 0px;
+  animation: loader1 0.6s infinite;
+}
+.loader div:nth-child(2) {
+  left: 8px;
+  animation: loader2 0.6s infinite;
+}
+.loader div:nth-child(3) {
+  left: 16px;
+  animation: loader2 0.6s infinite;
+}
+.loader div:nth-child(4) {
+  left: 24px;
+  animation: loader3 0.6s infinite;
+}
+
+@keyframes loader1 {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes loader2 {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+@keyframes loader3 {
+  0% { transform: scale(1); }
+  100% { transform: scale(0); }
+}
+
