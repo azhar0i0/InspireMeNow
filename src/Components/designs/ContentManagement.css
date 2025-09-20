@@ -24,8 +24,19 @@
   gap: 12px;
 }
 .select-mood-row .form-select {
-  flex: 1 1 220px;
-  min-width: 180px;
+  height: 36px !important;  /* slightly taller for better UX */
+  line-height: 1.4;
+  font-size: 13px;
+  padding: 4px 8px;
+  width: 20% !important;
+}
+@media (max-width: 768px) {
+  .select-mood-row .form-select {
+    height: 34px !important;
+    font-size: 12px;
+    padding: 3px 6px;
+    width: 100% !important;
+  }
 }
 .select-mood-row .btn-primary {
   flex: 0 0 auto;
@@ -381,3 +392,68 @@
   100% { transform: scale(0); }
 }
 
+/* ===== Pagination ===== */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  background: #FFA33C;
+  border: none;
+  color: black;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 36px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #FFEDBB;
+}
+
+.pagination-btn:disabled {
+  background: #e5c98d;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: #d6b971;
+  color: black;
+  border: 1px solid #c4a85d;
+}
+/* Pagination adjustments */
+.pagination-container {
+  display: flex;
+  gap: 6px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end; /* right side on desktop */
+}
+
+@media (max-width: 768px) {
+  .pagination-container {
+    justify-content: center;
+    font-size: smaller !important;
+  }
+  .pagination-btn {
+  background: #FFA33C;
+  border: none;
+  color: black;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 36px;
+}
+}

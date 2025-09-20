@@ -1,4 +1,3 @@
-// src/Components/UserManagement.jsx
 import React, { useState, useEffect } from "react";
 import "./designs/UserManagement.css";
 import { db } from "../firebaseConfig";
@@ -9,7 +8,7 @@ const UserManagement = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const entriesPerPage = 8;
+  const itemsPerPage = 8;
 
   const formatTimestamp = (ts) => {
     if (!ts) return "-";
@@ -29,7 +28,7 @@ const UserManagement = () => {
         .filter(
           (docSnap) =>
             docSnap.id !== "noofusers" && docSnap.id !== "totalnumberofusers"
-        ) // exclude aggregates
+        )
         .map((docSnap, index) => {
           const userData = docSnap.data();
           return {
@@ -37,7 +36,7 @@ const UserManagement = () => {
             deviceId: docSnap.id,
             lastSeen: formatTimestamp(userData.lastSeen),
             createdAt: formatTimestamp(userData.createdAt),
-            status: userData.Status ?? true, // default true if missing
+            status: userData.Status ?? true,
           };
         });
       setEntries(data);
@@ -60,29 +59,27 @@ const UserManagement = () => {
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(entries.length / entriesPerPage);
-  const indexOfLast = currentPage * entriesPerPage;
-  const indexOfFirst = indexOfLast - entriesPerPage;
+  const totalPages = Math.ceil(entries.length / itemsPerPage);
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
   const currentEntries = entries.slice(indexOfFirst, indexOfLast);
 
-  const goToPage = (pageNum) => {
-    if (pageNum >= 1 && pageNum <= totalPages) setCurrentPage(pageNum);
-  };
-  const goToNextGroup = () => {
-    if (currentPage + 3 <= totalPages) setCurrentPage(currentPage + 3);
-    else if (currentPage < totalPages) setCurrentPage(totalPages);
-  };
-  const goToPrevGroup = () => {
-    if (currentPage - 3 >= 1) setCurrentPage(currentPage - 3);
-    else if (currentPage > 1) setCurrentPage(1);
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  const pageNumbers = [];
-  let start = Math.max(1, currentPage - 1);
-  let end = Math.min(totalPages, currentPage + 1);
-  if (currentPage === 1) end = Math.min(totalPages, 3);
-  else if (currentPage === totalPages) start = Math.max(1, totalPages - 2);
-  for (let i = start; i <= end; i++) pageNumbers.push(i);
+  const getVisiblePages = () => {
+    const pagesToShow = 3;
+    let start = Math.max(currentPage - 1, 1);
+    let end = start + pagesToShow - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(end - pagesToShow + 1, 1);
+    }
+    const pages = [];
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
 
   return (
     <div className="user-management">
@@ -117,12 +114,8 @@ const UserManagement = () => {
                     <td>{entry.createdAt}</td>
                     <td>
                       <button
-                        className={`status-btn ${
-                          entry.status ? "active" : "inactive"
-                        }`}
-                        onClick={() =>
-                          handleToggleStatus(entry.deviceId, entry.status)
-                        }
+                        className={`status-btn ${entry.status ? "active" : "inactive"}`}
+                        onClick={() => handleToggleStatus(entry.deviceId, entry.status)}
                       >
                         {entry.status ? "Active" : "Inactive"}
                       </button>
@@ -141,39 +134,35 @@ const UserManagement = () => {
         </div>
 
         {/* Pagination */}
-        <div className="user-data-footer d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-          <span className="text-center text-md-start">
-            Showing {currentEntries.length} of {entries.length} entries
-          </span>
-          <ul className="pagination custom-pagination mb-0">
-            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={goToPrevGroup}>
-                Previous
-              </button>
-            </li>
+        {entries.length > itemsPerPage && (
+          <div className="pagination-container mt-3">
+            <button
+              className="pagination-btn"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              ‹ Prev
+            </button>
 
-            {pageNumbers.map((num) => (
-              <li
-                key={num}
-                className={`page-item ${currentPage === num ? "active" : ""}`}
+            {getVisiblePages().map((p) => (
+              <button
+                key={p}
+                className={`pagination-btn ${currentPage === p ? "active" : ""}`}
+                onClick={() => handlePageChange(p)}
               >
-                <button className="page-link" onClick={() => goToPage(num)}>
-                  {num}
-                </button>
-              </li>
+                {p}
+              </button>
             ))}
 
-            <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+            <button
+              className="pagination-btn"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
-              <button className="page-link" onClick={goToNextGroup}>
-                Next
-              </button>
-            </li>
-          </ul>
-        </div>
+              Next ›
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

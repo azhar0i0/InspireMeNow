@@ -1,6 +1,6 @@
 // src/Components/ContentManagement.jsx
 import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
+import { Button, ToastContainer, Toast } from "react-bootstrap";
 import "./designs/ContentManagement.css";
 import { FaExclamationTriangle } from "react-icons/fa";
 import AddNewEntry from "./Parts/AddNewEntry";
@@ -30,6 +30,16 @@ const MOODS = [
   "Betrayed",
 ];
 
+const ALL_CATEGORIES = [
+  "affirmation",
+  "miniexercise",
+  "peptalk",
+  "quickreset",
+  "reflections",
+  "voicejourney",
+  "voice",
+];
+
 const ContentManagement = () => {
   const [entries, setEntries] = useState([]);
   const [versionsList, setVersionsList] = useState([]);
@@ -37,21 +47,47 @@ const ContentManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-
   const [entryName, setEntryName] = useState("");
   const [makeLive, setMakeLive] = useState(false);
   const [selectedMood, setSelectedMood] = useState("All moods");
-  const [error, setError] = useState("");
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState("success"); 
+  const [showToast, setShowToast] = useState(false);
 
-  // --- Real-time listener (versions per mood). Categories are fetched once per version via getDocs.
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(entries.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  const getPaginatedEntries = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return entries.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
+  const getVisiblePages = () => {
+    const pagesToShow = 3;
+    let start = Math.max(currentPage - 1, 1);
+    let end = start + pagesToShow - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(end - pagesToShow + 1, 1);
+    }
+    const pages = [];
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
+
+  // --- Real-time listener ---
   useEffect(() => {
     let mounted = true;
     setEntries([]);
     setLoading(true);
-    setError("");
 
     const moodsToFetch = selectedMood === "All moods" ? MOODS : [selectedMood];
     const unsubscribers = [];
@@ -64,18 +100,21 @@ const ContentManagement = () => {
         q,
         async (versionsSnap) => {
           try {
-            // Build entries for this mood
             const moodEntries = await Promise.all(
               versionsSnap.docs.map(async (versionDoc) => {
                 const versionData = versionDoc.data() || {};
-                // normalize createdAt to seconds for sorting (works whether timestamp object or string)
                 const createdAtSecs =
                   versionData?.createdAt?.seconds ??
-                  (versionData?.createdAt ? Math.floor(new Date(versionData.createdAt).getTime() / 1000) : 0);
+                  (versionData?.createdAt
+                    ? Math.floor(new Date(versionData.createdAt).getTime() / 1000)
+                    : 0);
 
                 const versionDocRef = doc(db, "moods", mood, "versions", versionDoc.id);
                 const categoriesSnap = await getDocs(collection(versionDocRef, "categories"));
-                const categoriesData = categoriesSnap.docs.map((c) => ({ categoryName: c.id, ...c.data() }));
+                const categoriesData = categoriesSnap.docs.map((c) => ({
+                  categoryName: c.id,
+                  ...c.data(),
+                }));
 
                 return {
                   mood,
@@ -92,38 +131,37 @@ const ContentManagement = () => {
             if (!mounted) return;
 
             setEntries((prev) => {
-              // If we're viewing all moods, merge this mood's entries into prev (replace any old entries for same mood)
               if (selectedMood === "All moods") {
                 const withoutThisMood = prev.filter((e) => e.mood !== mood);
                 const combined = [...withoutThisMood, ...moodEntries];
                 combined.sort((a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0));
                 return combined;
               }
-
-              // If a single mood is selected, replace entirely with this mood's entries
-              const sorted = [...moodEntries].sort((a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0));
-              return sorted;
+              return [...moodEntries].sort((a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0));
             });
 
-            // update versionsList only if a single mood is selected and this is that mood
             if (selectedMood !== "All moods" && mood === selectedMood) {
               setVersionsList(moodEntries.map((e) => e.versionId));
             } else if (selectedMood === "All moods") {
-              setVersionsList([]); // clear versions list when showing all moods
+              setVersionsList([]);
             }
 
             setLoading(false);
           } catch (err) {
             console.error("Real-time listener error for mood", mood, err);
             if (!mounted) return;
-            setError("⚠ Failed to fetch entries in real-time. See console.");
+            setToastType("error");
+            setToastMsg("⚠ Failed to fetch entries in real-time.");
+            setShowToast(true);
             setLoading(false);
           }
         },
         (err) => {
           console.error("onSnapshot error for mood", mood, err);
           if (!mounted) return;
-          setError("⚠ Real-time subscription error. See console.");
+          setToastType("error");
+          setToastMsg("⚠ Real-time subscription error.");
+          setShowToast(true);
           setLoading(false);
         }
       );
@@ -139,10 +177,7 @@ const ContentManagement = () => {
 
   const handleEdit = (versionId, mood, categoryName) => {
     const entry = entries.find((e) => e.versionId === versionId && e.mood === mood);
-    if (!entry) {
-      console.warn("Entry not found for edit:", versionId, mood);
-      return;
-    }
+    if (!entry) return;
 
     const editing = {
       mood,
@@ -159,29 +194,30 @@ const ContentManagement = () => {
     setShowAddModal(true);
   };
 
-  // Delete a whole version and its categories
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const { versionId, mood } = deleteTarget;
     try {
       setLoading(true);
-      // delete category docs first
       const categoriesRef = collection(db, "moods", mood, "versions", versionId, "categories");
       const categoriesSnap = await getDocs(categoriesRef);
       for (const catDoc of categoriesSnap.docs) {
         await deleteDoc(doc(db, "moods", mood, "versions", versionId, "categories", catDoc.id));
       }
-      // delete the version doc
       await deleteDoc(doc(db, "moods", mood, "versions", versionId));
 
-      // optimistic update (real-time will also reflect change)
       setEntries((prev) => prev.filter((e) => !(e.versionId === versionId && e.mood === mood)));
       setShowDeleteModal(false);
       setDeleteTarget(null);
-      alert("✅ Version deleted successfully!");
+
+      setToastType("success");
+      setToastMsg("✅ Version deleted successfully!");
+      setShowToast(true);
     } catch (err) {
       console.error("Error deleting version:", err);
-      alert("❌ Failed to delete version. See console for details.");
+      setToastType("error");
+      setToastMsg("❌ Failed to delete version.");
+      setShowToast(true);
     } finally {
       setLoading(false);
     }
@@ -189,17 +225,27 @@ const ContentManagement = () => {
 
   return (
     <div className="content-management p-3">
+      <ToastContainer position="top-end" className="p-3">
+        <Toast show={showToast} onClose={() => setShowToast(false)} bg={toastType}>
+          <Toast.Body className="text-white">{toastMsg}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <div className="page-header mb-2">
         <h3 className="mb-0">Content Management</h3>
         <p className="sub-text">To Add or Edit the entries select that specific mood</p>
       </div>
 
       <h5 className="mt-4">Select Mood</h5>
-      <div className="d-flex gap-3 mb-3">
+      <div className="d-flex gap-3 mb-3 select-mood-row">
         <select
-          className="form-select w-25"
+          className="form-select"
           value={selectedMood}
-          onChange={(e) => setSelectedMood(e.target.value)}
+          onChange={(e) => {
+            setSelectedMood(e.target.value);
+            setCurrentPage(1);
+          }}
+          style={{ height: "36px" }} // neat height
         >
           <option>All moods</option>
           {MOODS.map((m) => (
@@ -211,7 +257,6 @@ const ContentManagement = () => {
           <Button
             className="btn btn-primary"
             onClick={() => {
-              setError("");
               setEditingEntry(null);
               setEntryName("");
               setMakeLive(false);
@@ -222,8 +267,6 @@ const ContentManagement = () => {
           </Button>
         )}
       </div>
-
-      {error && <p className="text-danger mb-3">{error}</p>}
 
       <div className="card custom-card">
         <div className="card-header custom-card-header">Content Versions</div>
@@ -250,46 +293,81 @@ const ContentManagement = () => {
                 <td colSpan="5" className="text-center text-muted">No versions found.</td>
               </tr>
             ) : (
-              entries.map((e) => (
-                <tr key={`${e.mood}-${e.versionId}`}>
-                  <td>{e.versionId}</td>
-                  <td>{e.mood}</td>
-                  <td>
-                    <span className={`badge ${e.versionData?.live ? "bg-success" : "bg-secondary"}`}>
-                      {e.versionData?.live ? "Live" : "Inactive"}
-                    </span>
-                  </td>
-                  <td>{e.categories.map((c) => c.categoryName).join(", ")}</td>
-                  <td>
-                    {selectedMood !== "All moods" && (
+              getPaginatedEntries().map((e) => {
+                const categoryNames = e.categories.map((c) => c.categoryName);
+                const isAllCategories = ALL_CATEGORIES.every((cat) => categoryNames.includes(cat));
+                return (
+                  <tr key={`${e.mood}-${e.versionId}`}>
+                    <td>{e.versionId}</td>
+                    <td>{e.mood}</td>
+                    <td>
+                      <span className={`badge ${e.versionData?.live ? "bg-success" : "bg-secondary"}`}>
+                        {e.versionData?.live ? "Live" : "Inactive"}
+                      </span>
+                    </td>
+                    <td>{isAllCategories ? "All Tabs" : "All Tabs"}</td>
+                    <td>
+                      {selectedMood !== "All moods" && (
+                        <Button
+                          variant="outline-info"
+                          size="sm"
+                          className="me-2"
+                          onClick={() =>
+                            handleEdit(e.versionId, e.mood, e.categories[0]?.categoryName)
+                          }
+                        >
+                          ✎
+                        </Button>
+                      )}
                       <Button
-                        variant="outline-info"
+                        variant="outline-danger"
                         size="sm"
-                        className="me-2"
-                        onClick={() =>
-                          handleEdit(e.versionId, e.mood, e.categories[0]?.categoryName)
-                        }
+                        onClick={() => {
+                          setDeleteTarget({ versionId: e.versionId, mood: e.mood });
+                          setShowDeleteModal(true);
+                        }}
                       >
-                        ✎
+                        🗑
                       </Button>
-                    )}
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => {
-                        setDeleteTarget({ versionId: e.versionId, mood: e.mood });
-                        setShowDeleteModal(true);
-                      }}
-                    >
-                      🗑
-                    </Button>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {entries.length > itemsPerPage && (
+        <div className="pagination-container">
+          <button
+            className="pagination-btn"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            ‹ Prev
+          </button>
+
+          {getVisiblePages().map((p) => (
+            <button
+              key={p}
+              className={`pagination-btn ${currentPage === p ? "active" : ""}`}
+              onClick={() => handlePageChange(p)}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            className="pagination-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next ›
+          </button>
+        </div>
+      )}
 
       <AddNewEntry
         showAddModal={showAddModal}
@@ -302,7 +380,7 @@ const ContentManagement = () => {
         makeLive={makeLive}
         setMakeLive={setMakeLive}
         selectedMood={selectedMood}
-        fetchEntries={() => {}} // real-time handles updates; kept for compatibility
+        fetchEntries={() => {}}
         existingVersions={versionsList}
       />
 
