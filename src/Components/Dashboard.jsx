@@ -220,7 +220,7 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-
+        
         {/* Recent Activity */}
         <div className="activity-card">
           <div className="activity-header"><h5>Recent Activity</h5></div>
@@ -232,20 +232,18 @@ const Dashboard = () => {
                   <th>Action</th>
                   <th>Mood</th>
                   <th>Timestamp</th>
-                  <th>View Report</th>
                 </tr>
               </thead>
               <tbody>
                 {activities.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center text-muted">No recent sessions.</td></tr>
+                  <tr><td colSpan={4} className="text-center text-muted">No recent sessions.</td></tr>
                 ) : (
                   activities.map((act, idx) => (
                     <tr key={`${act.userId}-${idx}`}>
-                      <td>{act.userId}</td>
-                      <td>Session Completed</td>
-                      <td className={`mood ${act.mood.toLowerCase()}`}>● {act.mood}</td>
-                      <td>{new Date(act.timestamp).toLocaleString()}</td>
-                      <td><Download size={18} /></td>
+                      <td data-label="User ID">{act.userId}</td>
+                      <td data-label="Action">Session Completed</td>
+                      <td data-label="Mood" className={`mood ${act.mood.toLowerCase()}`}>● {act.mood}</td>
+                      <td data-label="Timestamp">{new Date(act.timestamp).toLocaleString()}</td>
                     </tr>
                   ))
                 )}
@@ -253,6 +251,7 @@ const Dashboard = () => {
             </table>
           </div>
         </div>
+
       </div>
     </div>
   );

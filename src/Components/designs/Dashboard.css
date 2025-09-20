@@ -206,13 +206,13 @@
   text-decoration: underline;
 }
 
-/* Table */
+/* ===== Activity Table (cleaned up) ===== */
 .activity-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  background-color: #FFEDBB; /* whole table bg */
-  color: black; /* default text color */
+  background-color: #FFEDBB;
+  color: black;
 }
 .activity-table thead th {
   font-size: 12px;
@@ -220,49 +220,48 @@
   text-transform: capitalize;
   padding: 10px 14px;
   text-align: left;
-  color: black; /* ensure black header text */
 }
 .activity-table tbody tr {
-  border-top: 1px solid #d4c48f; /* softer border */
+  border-top: 1px solid #d4c48f;
   transition: background 0.2s;
 }
 .activity-table tbody tr:hover {
-  background: #f9e6a7; /* hover shade */
+  background: #f9e6a7;
 }
 .activity-table td {
   padding: 12px 14px;
   vertical-align: middle;
-  color: black; /* body text black */
 }
 
-/* Column Styles */
-.activity-table td.uid,
-.activity-table td.action,
-.activity-table td.time {
-  color: black; /* override old gray/white */
-}
-.activity-table td.mood {
-  font-weight: 600;
-}
-.activity-table td.mood.happy { color: #22c55e; }
-.activity-table td.mood.anxious { color: #f97316; }
-.activity-table td.mood.neutral { color: #3b82f6; }
-.activity-table td.mood.calm { color: #a855f7; }
+/* ===== Responsive Table ===== */
+@media (max-width: 768px) {
+  .activity-table thead {
+    display: none;
+  }
 
-/* Report Column (Download Icon) */
-.activity-table td.report {
-  text-align: center;
-  vertical-align: middle;
-  width: 100px;
+  .activity-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #fff5d7;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    padding: 10px;
+  }
+
+  .activity-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+
+  .activity-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+  }
 }
-.activity-table td.report svg {
-  color: black; /* icon in black */
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.activity-table td.report svg:hover {
-  color: #333; /* darker hover */
-}
+
 
 /* ===== Responsive Dashboard ===== */
 @media (max-width: 992px) {
