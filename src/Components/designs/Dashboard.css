@@ -12,7 +12,7 @@
   border-radius: 14px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between; /* ✅ push icon to right */
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 .stat-card p {
@@ -25,23 +25,23 @@
   font-weight: 600;
 }
 .icon-box {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 20px;
   flex-shrink: 0;
 }
 .text-secondary{
     font-size: x-small;
 }
 
-.icon-box.users { background: #3b82f6; color: #fff; }
-.icon-box.active { background: #22c55e; color: #fff; }
-.icon-box.mood { background: #facc15; color: #000; }
-.icon-box.completion { background: #ef4444; color: #fff; }
+.icon-box.users { background: #F9E19D; color: #FFA33C; }
+.icon-box.active { background: #F9E19D; color: #FFA33C; }
+.icon-box.mood { background: #F9E19D; color: #FFA33C; }
+.icon-box.completion { background: #F9E19D; color: #FFA33C; }
 
 /* ===== Graph Card ===== */
 .graph-card {
@@ -241,9 +241,7 @@
 
   .activity-table tbody tr {
     display: block;
-    margin-bottom: 12px;
     background: #fff5d7;
-    border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     padding: 10px;
   }
@@ -274,10 +272,10 @@
   }
   /* Stat cards in 2 per row on tablets */
   .stat-card {
-    margin-top: 0;
+    margin: 0 !important;
     justify-content: space-between;
-    /* gap: 10px; */
     padding: 10px 20px !important;
+    height: 90px;
   }
   .stat-card p {
     font-size: 15px !important;
@@ -326,7 +324,6 @@
 
   .activity-table tbody tr {
     display: block;
-    border-radius: 8px;
     padding: 10px;
   }
 

@@ -14,6 +14,7 @@ import SignIn from "./Auth/SignIn";
 import ForgetPassword from "./Auth/ForgetPassword";
 import { AuthProvider } from "./Auth/AuthContext";
 import PrivateRoute from "./Auth/PrivateRoute";
+import NotFound from "./NotFound";
 
 function App() {
 
@@ -53,7 +54,7 @@ function App() {
           </Route>
 
           {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

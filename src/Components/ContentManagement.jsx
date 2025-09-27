@@ -53,11 +53,11 @@ const ContentManagement = () => {
   const [makeLive, setMakeLive] = useState(false);
   const [selectedMood, setSelectedMood] = useState("All moods");
   const [toastMsg, setToastMsg] = useState("");
-  const [toastType, setToastType] = useState("success"); 
+  const [toastType, setToastType] = useState("success");
   const [showToast, setShowToast] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   const totalPages = Math.ceil(entries.length / itemsPerPage);
 
   const handlePageChange = (page) => {
@@ -283,14 +283,14 @@ const ContentManagement = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className="text-center">
-                  <div className="loader"><div></div><div></div><div></div><div></div></div>
+                <td colSpan="6" className="text-center">
+                  <div className="loader"><div></div><div></div><div></div><div></div><div></div></div>
                   <p style={{ color: "orange", marginTop: "0.5rem" }}>Loading versions...</p>
                 </td>
               </tr>
             ) : entries.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center text-muted">No versions found.</td>
+                <td colSpan="6" className="text-center text-muted">No versions found.</td>
               </tr>
             ) : (
               getPaginatedEntries().map((e) => {
@@ -305,7 +305,7 @@ const ContentManagement = () => {
                         {e.versionData?.live ? "Live" : "Inactive"}
                       </span>
                     </td>
-                    <td>{isAllCategories ? "All Tabs" : "All Tabs"}</td>
+                    <td>{isAllCategories ? "All Tabs" : 'All Tabs'}</td>
                     <td>
                       {selectedMood !== "All moods" && (
                         <Button
@@ -380,30 +380,43 @@ const ContentManagement = () => {
         makeLive={makeLive}
         setMakeLive={setMakeLive}
         selectedMood={selectedMood}
-        fetchEntries={() => {}}
+        fetchEntries={() => { }}
         existingVersions={versionsList}
       />
 
       {showDeleteModal && (
         <>
           <div className="modal-backdrop-custom" onClick={() => setShowDeleteModal(false)}></div>
+
           <div className="modal-custom">
             <div className="modal-content delete-modal">
-              <div className="modal-body text-center">
+              <div className="modal-body delete-body text-center">
                 <FaExclamationTriangle className="delete-icon mb-3" />
-                <h5 className="text-danger mb-2">Confirm Deletion</h5>
-                <p>This will delete the entire version and its categories. This action cannot be undone.</p>
+                <h5 className="delete-title">Confirm Deletion</h5>
+
+                <div className="delete-box">
+                  <p className="mb-0">
+                    You are about to delete <b>'{deleteTarget?.versionId}'</b>.
+                    <br />
+                    This will remove this version from all user experiences.
+                  </p>
+                  <p className="delete-warning mb-0">This action cannot be undone.</p>
+                </div>
               </div>
-              <div className="modal-footer justify-content-center">
+
+              <div className="modal-footer-custom">
                 <Button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>
                   Cancel
                 </Button>
-                <Button className="delete-btn" onClick={handleDelete}>Delete</Button>
+                <Button className="delete-btn" onClick={handleDelete}>
+                  Delete
+                </Button>
               </div>
             </div>
           </div>
         </>
       )}
+
     </div>
   );
 };

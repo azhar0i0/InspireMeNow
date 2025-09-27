@@ -53,7 +53,7 @@
   transition: 0.2s;
 }
 .btn-primary:hover {
-  background: #FFEDBB;
+  background: #a77237;
   color: black;
 }
 .btn-outline-info {
@@ -139,14 +139,14 @@
 .tab-pill {
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid #d6b971;
+  border: 1px solid #FFA33C;
   background: #fff;
   font-size: 13px;
   white-space: nowrap;
 }
 .tab-pill.active {
-  background: #d6b971;
-  border-color: #c4a85d;
+  background: #FFA33C;
+  border-color: #FFA33C;
 }
 
 /* Textarea */
@@ -304,21 +304,96 @@
   max-width: 500px;
 }
 
-/* Modal content */
+/* Container for the modal content (outer card) */
 .delete-modal {
+  --modal-pad: 20px;              /* change in one place if you want different padding */
+  max-width: 420px;
+  width: 100%;
   border-radius: 12px;
-  padding: 1.5rem;
-  background: #ffffff !important; /* solid white */
+  background: #FFEDBB !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
   border: none;
   overflow: hidden;
+  padding: 0;                     /* important: removed padding so inner delete-box can stretch */
+  margin: 0 auto;
 }
 
-/* Delete icon */
-.delete-icon {
-  font-size: 3rem;
-  color: #dc3545;
+/* Inner body with normal padding */
+.delete-body {
+  padding: var(--modal-pad);
+  text-align: center;
 }
+
+/* The highlighted yellow box — NO left/right gap inside modal */
+.delete-box {
+  background-color: #F9E19D;
+  margin: 0 calc(-1 * var(--modal-pad)); /* pull box to edges of modal-content */
+  padding: 16px 20px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #1f1f1f;
+}
+
+/* Italic warning line */
+.delete-warning {
+  font-style: italic;
+  margin-top: 10px;
+  color: #2d2d2d;
+}
+
+/* Small red-ish triangle icon centered */
+.delete-icon {
+  font-size: 1.85rem;
+  color: #E85C41;
+  display: block;
+  margin: 4px auto 8px;
+}
+
+/* Title style */
+.delete-title {
+  font-weight: 600;
+  margin: 6px 0 12px;
+  font-size: 1.05rem;
+}
+
+/* Footer with gap and centered buttons */
+.modal-footer-custom {
+  display: flex;
+  justify-content: center;
+  gap: 24px;       /* space between Cancel and Delete */
+  padding: 18px 0 22px;
+}
+
+/* Cancel = plain text (left) */
+.cancel-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #000 !important;
+  font-weight: 500;
+  box-shadow: none !important;
+  padding: 6px 12px;
+}
+
+/* Delete = orange gradient pill (right) */
+.delete-btn {
+  background: linear-gradient(180deg, #FFA33C 0%, #E6892F 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(230,130,45,0.18);
+}
+
+/* Small responsiveness tweak */
+@media (max-width: 480px) {
+  .delete-modal { max-width: 92%; }
+  .modal-footer-custom { gap: 12px; padding-bottom: 16px; }
+  .delete-box { padding: 14px 12px; margin-left: calc(-1 * var(--modal-pad)); margin-right: calc(-1 * var(--modal-pad)); }
+}
+
 
 /* Buttons */
 .cancel-btn {

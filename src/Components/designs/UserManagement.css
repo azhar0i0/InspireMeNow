@@ -139,7 +139,7 @@
 .user-data-table td {
   padding: 12px 16px;
   vertical-align: middle;
-  font-weight: 400;
+  font-weight: 200 !important;
   background-color: #FFEDBB !important;
   border-color: #d6b971 !important;
 }
@@ -201,6 +201,15 @@
 }
 
 @media (max-width: 768px) {
+  .page-header{
+    display: flex;
+    flex-direction: column !important;
+    justify-content: left !important;
+  }
+  .user-data-table td {
+    font-weight: 100;
+    font-size: 10px !important;
+  }
   .pagination-container {
     justify-content: center;
     font-size: smaller !important;
@@ -222,10 +231,10 @@
 
 /* Status Button Styling */
 .status-btn {
-  min-width: 90px;   /* ✅ keeps both Active/Inactive same width */
+  min-width: 90px;
   padding: 6px 14px;
   border: none;
-  border-radius: 20px;
+  border-radius: 20px !important;
   font-size: 0.85rem;
   font-weight: 600;
   text-align: center;
@@ -251,4 +260,65 @@
 
 .status-btn.inactive:hover {
   background-color: #c82333;
+}
+
+/* Dropdown beside heading */
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+  min-width: 220px;
+}
+
+.filter-dropdown .custom-select {
+  background: #FFEDBB !important;
+  border: 1px solid #d6b971 !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: black;
+  transition: all 0.25s ease-in-out;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 38px;
+}
+
+/* Focus / active state */
+.filter-dropdown .custom-select:focus {
+  outline: none;
+  border-color: #FFA33C !important;
+  box-shadow: 0 0 0 3px rgba(255, 163, 60, 0.3);
+  color: #C06B00;
+}
+
+/* Hover effect for text */
+.filter-dropdown .custom-select:hover {
+  color: #E58900;
+  border-color: #E58900;
+}
+
+/* Custom arrow styling */
+.filter-dropdown .dropdown-icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  pointer-events: none;
+  transform: translateY(-50%) rotate(0deg);
+  font-size: 14px;
+  color: #FFA33C;
+  transition: transform 0.25s ease-in-out, color 0.25s ease-in-out;
+}
+
+/* Rotate arrow + change color on focus/open */
+.filter-dropdown .custom-select:focus + .dropdown-icon,
+.filter-dropdown .custom-select:active + .dropdown-icon {
+  transform: translateY(-50%) rotate(180deg);
+  color: #E58900;
+}
+
+/* Arrow color change on hover too */
+.filter-dropdown .custom-select:hover + .dropdown-icon {
+  color: #E58900;
 }
