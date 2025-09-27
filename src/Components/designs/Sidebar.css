@@ -1,17 +1,16 @@
-/* Sidebar base */
+/* Sidebar */
 .sidebar {
-  position: fixed;
+  position: fixed;     /* make it stay in place */
   top: 0;
-  left: -240px;
+  left: 0;
   width: 240px;
-  height: 100vh;
+  height: 100vh;       /* full viewport height */
   background: #FFA33C;
-  color: #fff;
-  padding: 20px 15px;
-  overflow-y: auto;
-  z-index: 1050;
-  transition: left 0.3s ease;
+  border-radius: 0 ;
+  overflow: hidden;    /* stop any internal scrolling */
+  z-index: 1000;       /* stay above main content */
 }
+
 
 .sidebar.open {
   left: 0;

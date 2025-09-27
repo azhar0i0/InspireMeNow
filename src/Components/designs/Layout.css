@@ -5,15 +5,11 @@
 
 /* Main content with sidebar space */
 .main-content {
+  margin-left: 240px;              /* same width as sidebar */
+  width: calc(100% - 240px);       /* take remaining width */
   transition: margin-left 0.3s ease;
-  width: 100%;
-}
-
-/* Hide sidebar margin on mobile */
-@media (min-width: 768px) {
-  .main-content {
-    margin-left: 240px;
-  }
+  min-height: 100vh;               /* ensure full height */
+  overflow-x: hidden;              /* prevent sideways scroll */
 }
 
 /* Topbar for mobile */
@@ -21,8 +17,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #FFA33C;
+  background: #F9E19D;
   padding: 10px 15px;
+  border-radius: 50px;
 }
 .hamburger-btn {
   background: none;

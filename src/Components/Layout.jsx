@@ -7,9 +7,12 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="layout d-flex">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+    <div className="layout d-flex" style={{backgroundColor:"#F9E19D"}}>
+
+      <div className="sidebarLayout">
+        {/* Sidebar */}
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      </div>
 
       {/* Main Content */}
       <div

@@ -54,7 +54,7 @@ function App() {
           </Route>
 
           {/* Catch-all */}
-          <Route path="*" element={<NotFound to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
