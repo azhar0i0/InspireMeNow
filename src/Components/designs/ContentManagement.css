@@ -532,3 +532,24 @@
   min-width: 36px;
 }
 }
+/* Wrap table inside scrollable container */
+.custom-card {
+  background: #FFEDBB;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 12px rgba(96, 111, 131, 0.1);
+
+  /* Hide scrollbar but allow swipe */
+  -ms-overflow-style: none;   /* IE and Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+.custom-card::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari */
+}
+
+/* Table styling */
+.custom-table {
+  font-size: 13px;
+  width: 100%;
+  min-width: 600px; /* force horizontal scroll on small screens */
+}

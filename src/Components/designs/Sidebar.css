@@ -1,17 +1,29 @@
 /* Sidebar */
 .sidebar {
-  position: fixed;     /* make it stay in place */
+  position: fixed;
   top: 0;
-  left: 0;
+  left: -240px; /* hidden by default on mobile */
   width: 240px;
-  height: 100vh;       /* full viewport height */
+  height: 100vh;
   background: #FFA33C;
-  border-radius: 0 ;
-  overflow: hidden;    /* stop any internal scrolling */
-  z-index: 1000;       /* stay above main content */
+  border-radius: 0;
+  overflow-x: hidden; /* only vertical scrolling if needed */
+  overflow-y: auto; /* Allow scrolling if content is too long */
+  z-index: 1000;
+  transition: left 0.3s ease-in-out;
+
+  /* Added for flex layout */
+  display: flex;
+  flex-direction: column;
 }
 
+/* Added to make the main content take up available space */
+.sidebar-content {
+  flex-grow: 1; 
+  /* Allows navigation to push the footer to the bottom */
+}
 
+/* Show sidebar */
 .sidebar.open {
   left: 0;
 }
@@ -29,6 +41,7 @@
   align-items: center;
   font-size: 14px;
   transition: all 0.3s ease;
+  text-decoration: none; /* Ensure NavLink and buttons look consistent */
 }
 
 .nav-link.active,
@@ -37,13 +50,19 @@
   color: #fff !important;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-top: auto;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: 10px;
+/* Style for the logout button to match nav-link */
+.logout-btn {
+  /* It already uses nav-link styles */
+  border: none;
+  text-align: left; /* Aligns text and icon to the left */
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.sidebar-footer {
+  /* Space for the logout button area */
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 /* Close button (inside sidebar, mobile only) */
@@ -61,60 +80,17 @@
 
 @media (min-width: 768px) {
   .sidebar {
-    left: 0;
+    left: 0;        /* always visible on desktop */
   }
   .close-btn {
-    display: none; /* hide close on desktop */
+    display: none;    /* hide close button on desktop */
   }
 }
 
 /* Hamburger button */
-.hamburger {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 1100;
-  background: #0e1325;
+.hamburger-btn {
   border: none;
-  color: #fff;
-  padding: 10px 12px;
-  border-radius: 6px;
+  background: transparent;
+  font-size: 24px;
   cursor: pointer;
-  font-size: 20px;
-  display: block;
-}
-
-@media (min-width: 768px) {
-  .hamburger {
-    display: none;
-  }
-}
-
-.user-info {
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.user-info:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.logout-btn {
-  position: absolute;
-  right: 0;
-  bottom:60px;
-  background: #0e1325;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.logout-btn:hover {
-  background: #131930;
 }

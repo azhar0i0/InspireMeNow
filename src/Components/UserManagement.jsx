@@ -119,7 +119,7 @@ const UserManagement = () => {
           >
             <option value="all">All Users</option>
             <option value="new">New Users (last 24h)</option>
-            <option value="recent">Recent Users (last seen 24h)</option>
+            <option value="recent">Recent Users (last 24h)</option>
             <option value="active">Active Users</option>
             <option value="inactive">Inactive Users</option>
           </select>

@@ -322,3 +322,13 @@
 .filter-dropdown .custom-select:hover + .dropdown-icon {
   color: #E58900;
 }
+/* Make table swipeable/scrollable without showing scrollbar */
+.table-responsive {
+  overflow-x: auto;   /* enable horizontal scroll */
+  -webkit-overflow-scrolling: touch; /* smooth swipe on mobile */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.table-responsive::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Edge */
+}

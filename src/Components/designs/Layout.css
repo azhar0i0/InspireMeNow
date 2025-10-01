@@ -3,13 +3,20 @@
   width: 100%;
 }
 
-/* Main content with sidebar space */
+/* Main content */
 .main-content {
-  margin-left: 240px;              /* same width as sidebar */
-  width: calc(100% - 240px);       /* take remaining width */
+  flex-grow: 1;
+  min-height: 100vh;
+  overflow-x: hidden;
   transition: margin-left 0.3s ease;
-  min-height: 100vh;               /* ensure full height */
-  overflow-x: hidden;              /* prevent sideways scroll */
+}
+
+/* On desktop, shift content to make space for sidebar */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
 }
 
 /* Topbar for mobile */
@@ -20,10 +27,4 @@
   background: #F9E19D;
   padding: 10px 15px;
   border-radius: 50px;
-}
-.hamburger-btn {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
 }
