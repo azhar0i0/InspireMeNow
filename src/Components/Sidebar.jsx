@@ -65,18 +65,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
       {/* User info with hover logout */}
       <div
-        className="user-info mt-auto d-flex align-items-center position-relative"
+        className="user-info mt-auto d-flex justify-items-center align-items-center position-relative"
         onMouseEnter={() => setShowLogout(true)}
         onMouseLeave={() => setShowLogout(false)}
       >
-        <img
-          src="https://i.pravatar.cc/40"
-          alt="User"
-          className="rounded-circle me-2"
-        />
         <div>
-          <p className="mb-0 fw-bold">John Admin</p>
-          <small className="text-muted">Administrator</small>
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
 
         {/* Logout dropdown */}

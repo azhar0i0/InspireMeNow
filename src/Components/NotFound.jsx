@@ -9,7 +9,7 @@ const NotFound = () => {
     // Redirect after 1 seconds
     const timer = setTimeout(() => {
       navigate("/dashboard", { replace: true });
-    }, 1000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigate]);

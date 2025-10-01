@@ -14,7 +14,7 @@ import SignIn from "./Auth/SignIn";
 import ForgetPassword from "./Auth/ForgetPassword";
 import { AuthProvider } from "./Auth/AuthContext";
 import PrivateRoute from "./Auth/PrivateRoute";
-import NotFound from "./NotFound";
+import NotFound from "./Components/NotFound";
 
 function App() {
 

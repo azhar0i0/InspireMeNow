@@ -48,7 +48,7 @@ const AddNewEntry = ({
     affirmation: { allowText: true, allowVoice: true, multipleAffirmations: true },
     miniexercise: { allowText: true, allowVoice: false },
     reflections: { allowText: true, allowVoice: false },
-    voicejourney: { allowText: false, allowVoice: true },
+    voicejourney: { allowText: true, allowVoice: true, noHeading: true },
   };
 
   const [activeTab, setActiveTab] = useState(tabs[0]);
@@ -237,16 +237,18 @@ const AddNewEntry = ({
           ))}
         </div>
 
-        {/* Heading always shown */}
-        <Form.Group className="mb-3">
-          <Form.Label className="section-label">Heading</Form.Label>
-          <Form.Control
-            type="text"
-            value={tabData[activeTab]?.heading || ""}
-            onChange={(e) => handleTextChange(e, "heading")}
-            placeholder={`Enter heading for "${activeTab}"...`}
-          />
-        </Form.Group>
+        {/* Heading (hidden for voicejourney) */}
+        {!tabConfig[activeTab].noHeading && (
+          <Form.Group className="mb-3">
+            <Form.Label className="section-label">Heading</Form.Label>
+            <Form.Control
+              type="text"
+              value={tabData[activeTab]?.heading || ""}
+              onChange={(e) => handleTextChange(e, "heading")}
+              placeholder={`Enter heading for "${activeTab}"...`}
+            />
+          </Form.Group>
+        )}
 
         {/* Affirmation special case */}
         {tabConfig[activeTab].multipleAffirmations ? (
