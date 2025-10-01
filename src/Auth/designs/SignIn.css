@@ -293,3 +293,15 @@ html, body, #root {
     padding: 12px 0;
   }
 }
+/* Make forget password links look like text */
+.link-btn {
+  background: none;
+  border: none;
+  color: rgba(0,0,0,0.55);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+.link-btn:hover {
+  text-decoration: underline;
+}

@@ -11,7 +11,6 @@ import { useEffect } from "react";
 import { auth } from "./firebaseConfig";
 // Auth Pages
 import SignIn from "./Auth/SignIn";
-import ForgetPassword from "./Auth/ForgetPassword";
 import { AuthProvider } from "./Auth/AuthContext";
 import PrivateRoute from "./Auth/PrivateRoute";
 import NotFound from "./Components/NotFound";
@@ -37,7 +36,6 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<SignIn />} />
-          <Route path="forget-password" element={<ForgetPassword />} />
 
           {/* Protected routes */}
           <Route
