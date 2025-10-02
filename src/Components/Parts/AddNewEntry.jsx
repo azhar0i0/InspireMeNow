@@ -41,11 +41,14 @@ const AddNewEntry = ({
     "voicejourney",
   ];
 
-  // rules for each tab
   const tabConfig = {
     quickreset: { allowText: true, allowVoice: true },
     peptalk: { allowText: true, allowVoice: true },
-    affirmation: { allowText: true, allowVoice: true, multipleAffirmations: true },
+    affirmation: {
+      allowText: true,
+      allowVoice: true,
+      multipleAffirmations: true,
+    },
     miniexercise: { allowText: true, allowVoice: false },
     reflections: { allowText: true, allowVoice: false },
     voicejourney: { allowText: true, allowVoice: true, noHeading: true },
@@ -53,6 +56,14 @@ const AddNewEntry = ({
 
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [loading, setLoading] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  useEffect(() => {
+    if (toastMsg) {
+      const timer = setTimeout(() => setToastMsg(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMsg]);
 
   const [tabData, setTabData] = useState(
     tabs.reduce((acc, tab) => {
@@ -73,6 +84,7 @@ const AddNewEntry = ({
   const [versionName, setVersionName] = useState("V1");
   const fileInputRef = useRef(null);
 
+  // ✅ Load existing entry (edit mode)
   useEffect(() => {
     if (editingEntry) {
       const updatedTabData = tabs.reduce((acc, tab) => {
@@ -84,7 +96,11 @@ const AddNewEntry = ({
         acc[tab] = {
           heading: info[0]?.heading || "",
           ...(config.multipleAffirmations
-            ? { affirmations: info.length ? info.map((f) => f.text || "") : [""] }
+            ? {
+                affirmations: info.length
+                  ? info.map((f) => f.text || "")
+                  : [""],
+              }
             : config.allowText
             ? { text: info[0]?.text || "" }
             : {}),
@@ -99,6 +115,7 @@ const AddNewEntry = ({
       setVersionName(editingEntry.versionId || "V1");
       setMakeLive(!!editingEntry.versionData?.live);
     } else {
+      // Fresh entry mode
       const numbers = existingVersions
         .map((v) => {
           const m = (v || "").match(/^V(\d+)$/i);
@@ -128,14 +145,17 @@ const AddNewEntry = ({
     }
   }, [editingEntry, existingVersions]);
 
+  // ✅ Handle affirmations + text
   const handleTextChange = (e, field, index = null) => {
     if (activeTab === "affirmation" && index !== null) {
-      const newAffirmations = [...tabData.affirmation.affirmations];
-      newAffirmations[index] = e.target.value;
-      setTabData((prev) => ({
-        ...prev,
-        affirmation: { ...prev.affirmation, affirmations: newAffirmations },
-      }));
+      setTabData((prev) => {
+        const newAffirmations = [...prev.affirmation.affirmations];
+        newAffirmations[index] = e.target.value;
+        return {
+          ...prev,
+          affirmation: { ...prev.affirmation, affirmations: newAffirmations },
+        };
+      });
     } else {
       setTabData((prev) => ({
         ...prev,
@@ -187,7 +207,7 @@ const AddNewEntry = ({
 
   const handleSave = async () => {
     if (!selectedMood || selectedMood === "All moods") {
-      alert("⚠ Please select a valid mood before publishing.");
+      setToastMsg("⚠ Please select a valid mood before publishing.");
       return;
     }
 
@@ -198,149 +218,178 @@ const AddNewEntry = ({
       } else {
         await createNewEntry(selectedMood, versionName, makeLive, tabData, tabs);
       }
-      alert("✅ Entry saved successfully!");
+      setToastMsg("✅ Entry saved successfully!");
       setShowAddModal(false);
       await fetchEntries(selectedMood);
     } catch (error) {
       console.error(error);
-      alert("❌ Failed to save entry.");
+      setToastMsg("❌ Failed to save entry.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal
-      show={showAddModal}
-      onHide={() => setShowAddModal(false)}
-      size="lg"
-      centered
-      contentClassName="add-version-modal"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {editingEntry
-            ? `Edit Version (${versionName})`
-            : `Add New Version (${versionName})`}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="version-tabs mb-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              className={`tab-pill ${activeTab === tab ? "active" : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
+    <>
+      {toastMsg && (
+        <div
+          className="toast-message"
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            background: "#333",
+            color: "#fff",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
+            zIndex: 2000,
+            fontSize: "0.95rem",
+            fontWeight: "500",
+            transition: "opacity 0.3s ease-in-out",
+          }}
+        >
+          {toastMsg}
         </div>
+      )}
 
-        {/* Heading (hidden for voicejourney) */}
-        {!tabConfig[activeTab].noHeading && (
-          <Form.Group className="mb-3">
-            <Form.Label className="section-label">Heading</Form.Label>
-            <Form.Control
-              type="text"
-              value={tabData[activeTab]?.heading || ""}
-              onChange={(e) => handleTextChange(e, "heading")}
-              placeholder={`Enter heading for "${activeTab}"...`}
-            />
-          </Form.Group>
-        )}
+      <Modal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        size="lg"
+        centered
+        contentClassName="add-version-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editingEntry
+              ? `Edit Version (${versionName})`
+              : `Add New Version (${versionName})`}
+          </Modal.Title>
+        </Modal.Header>
 
-        {/* Affirmation special case */}
-        {tabConfig[activeTab].multipleAffirmations ? (
-          <div className="affirmation-section mb-4">
-            {tabData.affirmation.affirmations.map((sentence, idx) => (
-              <div key={idx} className="d-flex gap-2 mb-2 align-items-center">
-                <Form.Control
-                  type="text"
-                  value={sentence}
-                  placeholder={`Enter affirmation ${idx + 1} ...`}
-                  onChange={(e) => handleTextChange(e, "affirmations", idx)}
-                />
-                {idx === 0 ? (
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onClick={addAffirmationField}
-                  >
-                    <FaPlus />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => removeAffirmationField(idx)}
-                  >
-                    <FaMinus />
-                  </Button>
-                )}
-              </div>
+        <Modal.Body>
+          <div className="version-tabs mb-4">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                className={`tab-pill ${activeTab === tab ? "active" : ""}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
             ))}
           </div>
-        ) : (
-          tabConfig[activeTab].allowText && (
-            <Form.Group className="mb-4">
-              <Form.Label className="section-label">Content Text</Form.Label>
+
+          {/* Heading (hidden for voicejourney) */}
+          {!tabConfig[activeTab].noHeading && (
+            <Form.Group className="mb-3">
+              <Form.Label className="section-label">Heading</Form.Label>
               <Form.Control
-                as="textarea"
-                rows={4}
-                value={tabData[activeTab]?.text || ""}
-                onChange={(e) => handleTextChange(e, "text")}
-                placeholder={`Enter content for "${activeTab}"...`}
+                type="text"
+                value={tabData[activeTab]?.heading || ""}
+                onChange={(e) => handleTextChange(e, "heading")}
+                placeholder={`Enter heading for "${activeTab}"...`}
               />
             </Form.Group>
-          )
-        )}
+          )}
 
-        {/* File upload only if allowVoice = true */}
-        {tabConfig[activeTab].allowVoice && (
-          <div
-            className="upload-box mb-4 p-4 text-center"
-            onClick={() => fileInputRef.current.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-          >
-            <FaCloudUploadAlt className="upload-icon mb-2" />
-            {tabData[activeTab]?.file ? (
-              typeof tabData[activeTab].file === "string" ? (
-                <div className="fw-semibold">Audio uploaded</div>
-              ) : (
+          {/* ✅ Affirmation Section */}
+          {tabConfig[activeTab].multipleAffirmations ? (
+            <div className="affirmation-section mb-4">
+              <Form.Label className="section-label">Affirmations</Form.Label>
+              {tabData.affirmation.affirmations.map((sentence, idx) => (
+                <div key={idx} className="d-flex gap-2 mb-2 align-items-center">
+                  <Form.Control
+                    type="text"
+                    value={sentence}
+                    placeholder={`Enter affirmation ${idx + 1} ...`}
+                    onChange={(e) => handleTextChange(e, "affirmations", idx)}
+                  />
+                  {idx === 0 ? (
+                    <Button
+                      variant="outline-success"
+                      size="sm"
+                      onClick={addAffirmationField}
+                    >
+                      <FaPlus />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => removeAffirmationField(idx)}
+                    >
+                      <FaMinus />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            tabConfig[activeTab].allowText && (
+              <Form.Group className="mb-4">
+                <Form.Label className="section-label">Content Text</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={4}
+                  value={tabData[activeTab]?.text || ""}
+                  onChange={(e) => handleTextChange(e, "text")}
+                  placeholder={`Enter content for "${activeTab}"...`}
+                />
+              </Form.Group>
+            )
+          )}
+
+          {/* File Upload */}
+          {tabConfig[activeTab].allowVoice && (
+            <div
+              className="upload-box mb-4 p-4 text-center"
+              onClick={() => fileInputRef.current.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
+              <FaCloudUploadAlt className="upload-icon mb-2" />
+              {tabData[activeTab]?.file ? (
                 <div className="fw-semibold">{tabData[activeTab].file.name}</div>
-              )
-            ) : (
-              <div className="fw-semibold">
-                Click to upload audio or drag and drop
-              </div>
-            )}
-            <input
-              type="file"
-              accept=".mp3,.wav"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileUpload}
-            />
-          </div>
-        )}
+              ) : tabData[activeTab]?.voice ? (
+                <div className="fw-semibold">
+                  {typeof tabData[activeTab].voice === "string"
+                    ? tabData[activeTab].voice.split("/").pop()
+                    : "Existing audio"}
+                </div>
+              ) : (
+                <div className="fw-semibold">
+                  Click to upload audio or drag and drop
+                </div>
+              )}
+              <input
+                type="file"
+                accept=".mp3,.wav"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileUpload}
+              />
+            </div>
+          )}
 
-        <MakeLiveToggle makeLive={makeLive} setMakeLive={setMakeLive} />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={() => setShowAddModal(false)}>
-          Cancel
-        </Button>
-        <Button variant="primary" disabled={loading} onClick={handleSave}>
-          {loading
-            ? "Saving..."
-            : editingEntry
-            ? "Update Version"
-            : "Create Version"}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+          <MakeLiveToggle makeLive={makeLive} setMakeLive={setMakeLive} />
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowAddModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" disabled={loading} onClick={handleSave}>
+            {loading
+              ? "Saving new data"
+              : editingEntry
+              ? "Update Version"
+              : "Create Version"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
 

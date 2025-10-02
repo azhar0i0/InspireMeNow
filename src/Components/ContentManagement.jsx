@@ -150,7 +150,7 @@ const ContentManagement = () => {
           } catch (err) {
             console.error("Real-time listener error for mood", mood, err);
             if (!mounted) return;
-            setToastType("error");
+            setToastType("danger");
             setToastMsg("⚠ Failed to fetch entries in real-time.");
             setShowToast(true);
             setLoading(false);
@@ -159,7 +159,7 @@ const ContentManagement = () => {
         (err) => {
           console.error("onSnapshot error for mood", mood, err);
           if (!mounted) return;
-          setToastType("error");
+          setToastType("danger");
           setToastMsg("⚠ Real-time subscription error.");
           setShowToast(true);
           setLoading(false);
@@ -215,7 +215,7 @@ const ContentManagement = () => {
       setShowToast(true);
     } catch (err) {
       console.error("Error deleting version:", err);
-      setToastType("error");
+      setToastType("danger");
       setToastMsg("❌ Failed to delete version.");
       setShowToast(true);
     } finally {
@@ -225,8 +225,15 @@ const ContentManagement = () => {
 
   return (
     <div className="content-management p-3">
+      {/* Toast with auto hide */}
       <ToastContainer position="top-end" className="p-3">
-        <Toast show={showToast} onClose={() => setShowToast(false)} bg={toastType}>
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          bg={toastType}
+          autohide
+          delay={3500} // 3.5 seconds
+        >
           <Toast.Body className="text-white">{toastMsg}</Toast.Body>
         </Toast>
       </ToastContainer>
@@ -245,7 +252,7 @@ const ContentManagement = () => {
             setSelectedMood(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ height: "36px" }} // neat height
+          style={{ height: "36px" }}
         >
           <option>All moods</option>
           {MOODS.map((m) => (
@@ -305,7 +312,7 @@ const ContentManagement = () => {
                         {e.versionData?.live ? "Live" : "Inactive"}
                       </span>
                     </td>
-                    <td>{isAllCategories ? "All Tabs" : 'All Tabs'}</td>
+                    <td>{isAllCategories ? "All Tabs" : "All Tabs"}</td>
                     <td>
                       {selectedMood !== "All moods" && (
                         <Button
@@ -338,34 +345,39 @@ const ContentManagement = () => {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Pagination with info */}
       {entries.length > itemsPerPage && (
-        <div className="pagination-container">
-          <button
-            className="pagination-btn"
-            disabled={currentPage === 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            ‹ Prev
-          </button>
-
-          {getVisiblePages().map((p) => (
+        <div className="pagination-wrapper d-flex justify-content-between align-items-center mt-2">
+          <div className="text-muted small">
+            Showing {getPaginatedEntries().length} out of {entries.length} entries
+          </div>
+          <div className="pagination-container">
             <button
-              key={p}
-              className={`pagination-btn ${currentPage === p ? "active" : ""}`}
-              onClick={() => handlePageChange(p)}
+              className="pagination-btn"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
-              {p}
+              ‹ Prev
             </button>
-          ))}
 
-          <button
-            className="pagination-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Next ›
-          </button>
+            {getVisiblePages().map((p) => (
+              <button
+                key={p}
+                className={`pagination-btn ${currentPage === p ? "active" : ""}`}
+                onClick={() => handlePageChange(p)}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              className="pagination-btn"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next ›
+            </button>
+          </div>
         </div>
       )}
 
@@ -380,20 +392,18 @@ const ContentManagement = () => {
         makeLive={makeLive}
         setMakeLive={setMakeLive}
         selectedMood={selectedMood}
-        fetchEntries={() => { }}
+        fetchEntries={() => {}}
         existingVersions={versionsList}
       />
 
       {showDeleteModal && (
         <>
           <div className="modal-backdrop-custom" onClick={() => setShowDeleteModal(false)}></div>
-
           <div className="modal-custom">
             <div className="modal-content delete-modal">
               <div className="modal-body delete-body text-center">
                 <FaExclamationTriangle className="delete-icon mb-3" />
                 <h5 className="delete-title">Confirm Deletion</h5>
-
                 <div className="delete-box">
                   <p className="mb-0">
                     You are about to delete <b>'{deleteTarget?.versionId}'</b>.
@@ -403,7 +413,6 @@ const ContentManagement = () => {
                   <p className="delete-warning mb-0">This action cannot be undone.</p>
                 </div>
               </div>
-
               <div className="modal-footer-custom">
                 <Button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>
                   Cancel
@@ -416,7 +425,6 @@ const ContentManagement = () => {
           </div>
         </>
       )}
-
     </div>
   );
 };
