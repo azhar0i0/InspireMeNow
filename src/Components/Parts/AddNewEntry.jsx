@@ -57,13 +57,8 @@ const AddNewEntry = ({
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [loading, setLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
-
-  useEffect(() => {
-    if (toastMsg) {
-      const timer = setTimeout(() => setToastMsg(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toastMsg]);
+  const [versionName, setVersionName] = useState("V1");
+  const fileInputRef = useRef(null);
 
   const [tabData, setTabData] = useState(
     tabs.reduce((acc, tab) => {
@@ -81,10 +76,15 @@ const AddNewEntry = ({
     }, {})
   );
 
-  const [versionName, setVersionName] = useState("V1");
-  const fileInputRef = useRef(null);
+  // ✅ Toast disappear logic
+  useEffect(() => {
+    if (toastMsg) {
+      const timer = setTimeout(() => setToastMsg(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMsg]);
 
-  // ✅ Load existing entry (edit mode)
+  // ✅ Load data in Edit mode
   useEffect(() => {
     if (editingEntry) {
       const updatedTabData = tabs.reduce((acc, tab) => {
@@ -93,14 +93,22 @@ const AddNewEntry = ({
           (c) => c.categoryName === tab
         );
 
+        let affirmations = [""];
+        if (tab === "affirmation" && info.length > 0) {
+          // 🔑 Collect text1, text2, text3... fields
+          const item = info[0];
+          affirmations = Object.keys(item)
+            .filter((k) => k.startsWith("text"))
+            .map((k) => item[k])
+            .filter(Boolean);
+
+          if (affirmations.length === 0) affirmations = [""];
+        }
+
         acc[tab] = {
           heading: info[0]?.heading || "",
           ...(config.multipleAffirmations
-            ? {
-                affirmations: info.length
-                  ? info.map((f) => f.text || "")
-                  : [""],
-              }
+            ? { affirmations }
             : config.allowText
             ? { text: info[0]?.text || "" }
             : {}),
@@ -115,7 +123,7 @@ const AddNewEntry = ({
       setVersionName(editingEntry.versionId || "V1");
       setMakeLive(!!editingEntry.versionData?.live);
     } else {
-      // Fresh entry mode
+      // Fresh entry
       const numbers = existingVersions
         .map((v) => {
           const m = (v || "").match(/^V(\d+)$/i);
@@ -145,7 +153,7 @@ const AddNewEntry = ({
     }
   }, [editingEntry, existingVersions]);
 
-  // ✅ Handle affirmations + text
+  // ✅ Text + Affirmation handler
   const handleTextChange = (e, field, index = null) => {
     if (activeTab === "affirmation" && index !== null) {
       setTabData((prev) => {
@@ -185,6 +193,7 @@ const AddNewEntry = ({
     });
   };
 
+  // ✅ File upload
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -205,6 +214,7 @@ const AddNewEntry = ({
     }));
   };
 
+  // ✅ Save Handler
   const handleSave = async () => {
     if (!selectedMood || selectedMood === "All moods") {
       setToastMsg("⚠ Please select a valid mood before publishing.");
@@ -213,10 +223,35 @@ const AddNewEntry = ({
 
     try {
       setLoading(true);
+
+      // 🔑 Transform affirmations into text1, text2... before saving
+      const transformedTabData = {
+        ...tabData,
+        affirmation: {
+          ...tabData.affirmation,
+          ...tabData.affirmation.affirmations.reduce((acc, text, idx) => {
+            acc[`text${idx + 1}`] = text;
+            return acc;
+          }, {}),
+        },
+      };
+
       if (editingEntry) {
-        await updateEntry(selectedMood, versionName, makeLive, tabData, tabs);
+        await updateEntry(
+          selectedMood,
+          versionName,
+          makeLive,
+          transformedTabData,
+          tabs
+        );
       } else {
-        await createNewEntry(selectedMood, versionName, makeLive, tabData, tabs);
+        await createNewEntry(
+          selectedMood,
+          versionName,
+          makeLive,
+          transformedTabData,
+          tabs
+        );
       }
       setToastMsg("✅ Entry saved successfully!");
       setShowAddModal(false);
@@ -246,7 +281,6 @@ const AddNewEntry = ({
             zIndex: 2000,
             fontSize: "0.95rem",
             fontWeight: "500",
-            transition: "opacity 0.3s ease-in-out",
           }}
         >
           {toastMsg}
@@ -269,6 +303,7 @@ const AddNewEntry = ({
         </Modal.Header>
 
         <Modal.Body>
+          {/* Tabs */}
           <div className="version-tabs mb-4">
             {tabs.map((tab) => (
               <button
@@ -281,7 +316,7 @@ const AddNewEntry = ({
             ))}
           </div>
 
-          {/* Heading (hidden for voicejourney) */}
+          {/* Heading */}
           {!tabConfig[activeTab].noHeading && (
             <Form.Group className="mb-3">
               <Form.Label className="section-label">Heading</Form.Label>
@@ -294,7 +329,7 @@ const AddNewEntry = ({
             </Form.Group>
           )}
 
-          {/* ✅ Affirmation Section */}
+          {/* Affirmations */}
           {tabConfig[activeTab].multipleAffirmations ? (
             <div className="affirmation-section mb-4">
               <Form.Label className="section-label">Affirmations</Form.Label>
@@ -341,7 +376,7 @@ const AddNewEntry = ({
             )
           )}
 
-          {/* File Upload */}
+          {/* Voice Upload */}
           {tabConfig[activeTab].allowVoice && (
             <div
               className="upload-box mb-4 p-4 text-center"
@@ -382,7 +417,7 @@ const AddNewEntry = ({
           </Button>
           <Button variant="primary" disabled={loading} onClick={handleSave}>
             {loading
-              ? "Saving new data"
+              ? "Saving..."
               : editingEntry
               ? "Update Version"
               : "Create Version"}

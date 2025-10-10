@@ -6,6 +6,7 @@ import Layout from "./Components/Layout";
 import Dashboard from "./Components/Dashboard";
 import UserManagement from "./Components/UserManagement";
 import ContentManagement from "./Components/ContentManagement";
+import Meditation from "./Components/Meditation";
 
 import { useEffect } from "react";
 import { auth } from "./firebaseConfig";
@@ -49,6 +50,8 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="user-management" element={<UserManagement />} />
             <Route path="content-management" element={<ContentManagement />} />
+            <Route path="meditation" element={<Meditation />} />
+            
           </Route>
 
           {/* Catch-all */}

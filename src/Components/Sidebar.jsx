@@ -67,6 +67,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               <FaFolder className="me-2" /> Content Management
             </NavLink>
           </li>
+          <li className="nav-item mb-2">
+            <NavLink
+              to="/dashboard/meditation"
+              className={({ isActive }) =>
+                isActive ? "nav-link active" : "nav-link"
+              }
+              onClick={toggleSidebar}
+            >
+              <FaFolder className="me-2" /> Meditation
+            </NavLink>
+          </li>
         </ul>
       </div>
 

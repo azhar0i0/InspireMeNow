@@ -1,0 +1,482 @@
+/* =============================
+   THEME & LAYOUT
+============================= */
+.meditation-page {
+  background: #F9E19D;
+  color: #1b1b1b;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+/* =============================
+   HEADER
+============================= */
+.page-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.sub-text {
+  color: #333;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* =============================
+   TOAST
+============================= */
+.inline-toast {
+  background: #222;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 12px 0;
+}
+
+/* =============================
+   LIST CARDS
+============================= */
+.meditation-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.meditation-card {
+  background: #FFEDBB;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(96,111,131,0.08);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.meditation-left {
+  flex: 1;
+  min-width: 240px;
+}
+
+.med-heading {
+  color: #ff9317;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+/* =============================
+   AUDIO SECTION FIXED
+============================= */
+.audio-display {
+  background-color: #F9E19D !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.audio-label {
+  font-size: 13px;
+  color: #555;
+  font-weight: 500;
+}
+
+.audio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audio-name {
+  font-weight: 600;
+  color: #222;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  font-size: 13px;
+}
+
+.audio-name.muted {
+  color: #999;
+  font-weight: 500;
+}
+
+.audio-player {
+  width: 100%;
+  height: 32px;
+  outline: none;
+  margin-top: 4px;
+  accent-color: #3B71CA; /* ← your theme color */
+}
+
+/* =============================
+   RIGHT TEXT
+============================= */
+.meditation-right {
+  flex: 2;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #222;
+  word-break: break-word;
+}
+
+/* =============================
+   ACTIONS
+============================= */
+.card-actions {
+  display: flex;
+  align-items: center;
+}
+
+.update-btn {
+  background: #FFA33C;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.5s ease;
+}
+.update-btn:hover { background: #ff9317; }
+
+.no-data {
+  color: #666;
+  text-align: center;
+  padding: 18px;
+  font-size: 15px;
+}
+
+/* =============================
+   POPUP OVERLAY/BOX
+============================= */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 70;
+}
+
+.popup-box {
+  background: #FFEDBB;
+  border-radius: 12px;
+  width: 640px;
+  max-width: calc(100% - 32px);
+  padding: 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.popup-title {
+  text-align: center;
+  color: #FFA33C;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+/* =============================
+   UPLOAD BOX (Same vibe)
+============================= */
+.upload-box {
+  border: 2px dashed #d6b971;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.upload-box:hover { border-color: #c4a85d; }
+
+.upload-icon {
+  font-size: 36px;
+  color: #d6b971;
+  min-width: 44px;
+}
+
+.upload-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-text .fw-semibold {
+  font-weight: 600;
+}
+.muted { color: #666; font-size: 13px; }
+
+.file-actions { margin-top: 4px; }
+.small-btn {
+  background: transparent;
+  border: 1px solid #eee;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* audio preview inside popup */
+.upload-text .audio-player {
+  width: 100%;
+  margin-top: 4px;
+  height: 32px;
+}
+
+/* =============================
+   PROGRESS BAR
+============================= */
+.upload-progress {
+  margin-top: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 10px;
+  position: relative;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #FFA33C, #d6b971);
+  width: 0%;
+  transition: width 0.2s;
+}
+.progress-text {
+  font-size: 12px;
+  color: #333;
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* =============================
+   FORM CONTROLS
+============================= */
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  font-size: 14px;
+  outline: none;
+}
+.form-control:focus {
+  border-color: #FFA33C;
+}
+
+/* =============================
+   FOOTER BUTTONS
+============================= */
+.modal-footer-custom {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.save-btn {
+  background: #FFA33C !important;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.save-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: #FFA33C !important;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* =============================
+   ANIMATIONS & RESPONSIVE
+============================= */
+.slide-in { animation: slideIn 0.35s ease both; }
+@keyframes slideIn {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .popup-box { width: 92%; padding: 14px; }
+  .meditation-card { flex-direction: column; }
+  .audio-display { max-width: 100%; }
+  .card-actions { margin-top: 10px; }
+}
+
+/* ============================
+   AUDIO UPLOAD FIX & LAYOUT
+============================ */
+
+.upload-box {
+  width: 100%;
+  min-height: 140px;
+  border: 2px dashed #FFA33C;
+  border-radius: 12px;
+  background: #fdfdfd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.upload-box:hover {
+  background: #f4f7ff;
+  border-color: #2e5aa8;
+}
+
+.upload-box.has-file {
+  border-color: #2e5aa8;
+  background: #f6faff;
+}
+
+.upload-icon {
+  font-size: 38px;
+  color: #FFA33C;
+  opacity: 0.9;
+}
+
+.upload-text {
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+  max-width: 90%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.upload-text .fw-semibold {
+  font-weight: 600;
+  color: #222;
+}
+
+.muted {
+  font-size: 12px;
+  color: #777;
+}
+
+.file-actions {
+  margin-top: 6px;
+}
+
+.small-btn {
+  background: #ccc;
+  color: #222;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.small-btn:hover {
+  background: #bbb;
+}
+
+/* Ensure audio player stays within bounds */
+.audio-player {
+  width: 100%;
+  height: 36px;
+  border-radius: 8px;
+  margin-top: 8px;
+  outline: none;
+}
+
+/* Prevent popup overflow */
+.popup-box {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+/* Upload progress bar styling */
+.upload-progress {
+  margin-top: 10px;
+  background: #eee;
+  border-radius: 8px;
+  height: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: #FFA33C;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #FFA33C;
+  font-weight: 600;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Responsive fix for narrow screens */
+@media (max-width: 600px) {
+  .upload-box {
+    padding: 15px;
+    min-height: 120px;
+  }
+  .upload-text {
+    font-size: 13px;
+  }
+  .audio-player {
+    height: 32px;
+  }
+}
+
+/* invisible scrollbar */
+.scrollable-invisible {
+  overflow-y: auto; /* Enables vertical scrolling */
+  
+  /* Hide scrollbar for Chrome, Edge, and Safari */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollable-invisible::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
