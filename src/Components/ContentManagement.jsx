@@ -1,6 +1,5 @@
-// src/Components/ContentManagement.jsx
 import React, { useState, useEffect } from "react";
-import { Button, ToastContainer, Toast } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import "./designs/ContentManagement.css";
 import { FaExclamationTriangle } from "react-icons/fa";
 import AddNewEntry from "./Parts/AddNewEntry";
@@ -53,8 +52,6 @@ const ContentManagement = () => {
   const [makeLive, setMakeLive] = useState(false);
   const [selectedMood, setSelectedMood] = useState("All moods");
   const [toastMsg, setToastMsg] = useState("");
-  const [toastType, setToastType] = useState("success");
-  const [showToast, setShowToast] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -106,11 +103,21 @@ const ContentManagement = () => {
                 const createdAtSecs =
                   versionData?.createdAt?.seconds ??
                   (versionData?.createdAt
-                    ? Math.floor(new Date(versionData.createdAt).getTime() / 1000)
+                    ? Math.floor(
+                        new Date(versionData.createdAt).getTime() / 1000
+                      )
                     : 0);
 
-                const versionDocRef = doc(db, "moods", mood, "versions", versionDoc.id);
-                const categoriesSnap = await getDocs(collection(versionDocRef, "categories"));
+                const versionDocRef = doc(
+                  db,
+                  "moods",
+                  mood,
+                  "versions",
+                  versionDoc.id
+                );
+                const categoriesSnap = await getDocs(
+                  collection(versionDocRef, "categories")
+                );
                 const categoriesData = categoriesSnap.docs.map((c) => ({
                   categoryName: c.id,
                   ...c.data(),
@@ -122,7 +129,14 @@ const ContentManagement = () => {
                   versionData,
                   categories: categoriesData.length
                     ? categoriesData
-                    : [{ categoryName: "No categories", heading: "", text: "", voice: null }],
+                    : [
+                        {
+                          categoryName: "No categories",
+                          heading: "",
+                          text: "",
+                          voice: null,
+                        },
+                      ],
                   createdAtSecs,
                 };
               })
@@ -134,10 +148,14 @@ const ContentManagement = () => {
               if (selectedMood === "All moods") {
                 const withoutThisMood = prev.filter((e) => e.mood !== mood);
                 const combined = [...withoutThisMood, ...moodEntries];
-                combined.sort((a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0));
+                combined.sort(
+                  (a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0)
+                );
                 return combined;
               }
-              return [...moodEntries].sort((a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0));
+              return [...moodEntries].sort(
+                (a, b) => (b.createdAtSecs || 0) - (a.createdAtSecs || 0)
+              );
             });
 
             if (selectedMood !== "All moods" && mood === selectedMood) {
@@ -149,19 +167,13 @@ const ContentManagement = () => {
             setLoading(false);
           } catch (err) {
             console.error("Real-time listener error for mood", mood, err);
-            if (!mounted) return;
-            setToastType("danger");
-            setToastMsg("⚠ Failed to fetch entries in real-time.");
-            setShowToast(true);
+            setToastMsg("⚠ Failed to fetch entries in real-time");
             setLoading(false);
           }
         },
         (err) => {
           console.error("onSnapshot error for mood", mood, err);
-          if (!mounted) return;
-          setToastType("danger");
-          setToastMsg("⚠ Real-time subscription error.");
-          setShowToast(true);
+          setToastMsg("⚠ Real-time subscription error");
           setLoading(false);
         }
       );
@@ -176,7 +188,9 @@ const ContentManagement = () => {
   }, [selectedMood]);
 
   const handleEdit = (versionId, mood, categoryName) => {
-    const entry = entries.find((e) => e.versionId === versionId && e.mood === mood);
+    const entry = entries.find(
+      (e) => e.versionId === versionId && e.mood === mood
+    );
     if (!entry) return;
 
     const editing = {
@@ -199,25 +213,40 @@ const ContentManagement = () => {
     const { versionId, mood } = deleteTarget;
     try {
       setLoading(true);
-      const categoriesRef = collection(db, "moods", mood, "versions", versionId, "categories");
+      const categoriesRef = collection(
+        db,
+        "moods",
+        mood,
+        "versions",
+        versionId,
+        "categories"
+      );
       const categoriesSnap = await getDocs(categoriesRef);
       for (const catDoc of categoriesSnap.docs) {
-        await deleteDoc(doc(db, "moods", mood, "versions", versionId, "categories", catDoc.id));
+        await deleteDoc(
+          doc(
+            db,
+            "moods",
+            mood,
+            "versions",
+            versionId,
+            "categories",
+            catDoc.id
+          )
+        );
       }
       await deleteDoc(doc(db, "moods", mood, "versions", versionId));
 
-      setEntries((prev) => prev.filter((e) => !(e.versionId === versionId && e.mood === mood)));
+      setEntries((prev) =>
+        prev.filter((e) => !(e.versionId === versionId && e.mood === mood))
+      );
       setShowDeleteModal(false);
       setDeleteTarget(null);
 
-      setToastType("success");
-      setToastMsg("✅ Version deleted successfully!");
-      setShowToast(true);
+      setToastMsg("✔ Version deleted successfully!");
     } catch (err) {
       console.error("Error deleting version:", err);
-      setToastType("danger");
-      setToastMsg("❌ Failed to delete version.");
-      setShowToast(true);
+      setToastMsg("✘ Failed to delete version.");
     } finally {
       setLoading(false);
     }
@@ -225,22 +254,27 @@ const ContentManagement = () => {
 
   return (
     <div className="content-management p-3">
-      {/* Toast with auto hide */}
-      <ToastContainer position="top-end" className="p-3">
-        <Toast
-          show={showToast}
-          onClose={() => setShowToast(false)}
-          bg={toastType}
-          autohide
-          delay={3500} // 3.5 seconds
+      {/* ✅ Custom Toast */}
+      {toastMsg && (
+        <div
+          className={`custom-toast ${
+            toastMsg.includes("✔") ? "success" : "error"
+          }`}
         >
-          <Toast.Body className="text-white">{toastMsg}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+          <span className="toast-icon">
+            {toastMsg.includes("✔") ? "✔" : "!"}
+          </span>
+          <span className="toast-text">
+            {toastMsg.replace("✔ ", "").replace("✘ ", "")}
+          </span>
+        </div>
+      )}
 
       <div className="page-header mb-2">
         <h3 className="mb-0">Content Management</h3>
-        <p className="sub-text">To Add or Edit the entries select that specific mood</p>
+        <p className="sub-text">
+          To Add or Edit the entries select that specific mood
+        </p>
       </div>
 
       <h5 className="mt-4">Select Mood</h5>
@@ -291,24 +325,40 @@ const ContentManagement = () => {
             {loading ? (
               <tr>
                 <td colSpan="6" className="text-center">
-                  <div className="loader"><div></div><div></div><div></div><div></div><div></div></div>
-                  <p style={{ color: "orange", marginTop: "0.5rem" }}>Loading versions...</p>
+                  <div className="loader">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                  </div>
+                  <p style={{ color: "orange", marginTop: "0.5rem" }}>
+                    Loading versions...
+                  </p>
                 </td>
               </tr>
             ) : entries.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center text-muted">No versions found.</td>
+                <td colSpan="6" className="text-center text-muted">
+                  No versions found.
+                </td>
               </tr>
             ) : (
               getPaginatedEntries().map((e) => {
                 const categoryNames = e.categories.map((c) => c.categoryName);
-                const isAllCategories = ALL_CATEGORIES.every((cat) => categoryNames.includes(cat));
+                const isAllCategories = ALL_CATEGORIES.every((cat) =>
+                  categoryNames.includes(cat)
+                );
                 return (
                   <tr key={`${e.mood}-${e.versionId}`}>
                     <td>{e.versionId}</td>
                     <td>{e.mood}</td>
                     <td>
-                      <span className={`badge ${e.versionData?.live ? "bg-success" : "bg-secondary"}`}>
+                      <span
+                        className={`badge ${
+                          e.versionData?.live ? "bg-success" : "bg-secondary"
+                        }`}
+                      >
                         {e.versionData?.live ? "Live" : "Inactive"}
                       </span>
                     </td>
@@ -320,7 +370,11 @@ const ContentManagement = () => {
                           size="sm"
                           className="me-2"
                           onClick={() =>
-                            handleEdit(e.versionId, e.mood, e.categories[0]?.categoryName)
+                            handleEdit(
+                              e.versionId,
+                              e.mood,
+                              e.categories[0]?.categoryName
+                            )
                           }
                         >
                           ✎
@@ -330,7 +384,10 @@ const ContentManagement = () => {
                         variant="outline-danger"
                         size="sm"
                         onClick={() => {
-                          setDeleteTarget({ versionId: e.versionId, mood: e.mood });
+                          setDeleteTarget({
+                            versionId: e.versionId,
+                            mood: e.mood,
+                          });
                           setShowDeleteModal(true);
                         }}
                       >
@@ -345,11 +402,12 @@ const ContentManagement = () => {
         </table>
       </div>
 
-      {/* Pagination with info */}
+      {/* Pagination */}
       {entries.length > itemsPerPage && (
         <div className="pagination-wrapper d-flex justify-content-between align-items-center mt-2">
           <div className="text-muted small">
-            Showing {getPaginatedEntries().length} out of {entries.length} entries
+            Showing {getPaginatedEntries().length} out of {entries.length}{" "}
+            entries
           </div>
           <div className="pagination-container">
             <button
@@ -363,7 +421,9 @@ const ContentManagement = () => {
             {getVisiblePages().map((p) => (
               <button
                 key={p}
-                className={`pagination-btn ${currentPage === p ? "active" : ""}`}
+                className={`pagination-btn ${
+                  currentPage === p ? "active" : ""
+                }`}
                 onClick={() => handlePageChange(p)}
               >
                 {p}
@@ -398,7 +458,10 @@ const ContentManagement = () => {
 
       {showDeleteModal && (
         <>
-          <div className="modal-backdrop-custom" onClick={() => setShowDeleteModal(false)}></div>
+          <div
+            className="modal-backdrop-custom"
+            onClick={() => setShowDeleteModal(false)}
+          ></div>
           <div className="modal-custom">
             <div className="modal-content delete-modal">
               <div className="modal-body delete-body text-center">
@@ -410,11 +473,16 @@ const ContentManagement = () => {
                     <br />
                     This will remove this version from all user experiences.
                   </p>
-                  <p className="delete-warning mb-0">This action cannot be undone.</p>
+                  <p className="delete-warning mb-0">
+                    This action cannot be undone.
+                  </p>
                 </div>
               </div>
               <div className="modal-footer-custom">
-                <Button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>
+                <Button
+                  className="cancel-btn"
+                  onClick={() => setShowDeleteModal(false)}
+                >
                   Cancel
                 </Button>
                 <Button className="delete-btn" onClick={handleDelete}>

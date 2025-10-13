@@ -363,7 +363,7 @@
   display: flex;
   justify-content: center;
   gap: 24px;       /* space between Cancel and Delete */
-  padding: 18px 0 22px;
+  padding: 18px 0 22px !important;
 }
 
 /* Cancel = plain text (left) */
@@ -385,6 +385,7 @@
   border-radius: 8px;
   font-weight: 600;
   box-shadow: 0 4px 10px rgba(230,130,45,0.18);
+  margin-right: 3%;
 }
 
 /* Small responsiveness tweak */
@@ -468,6 +469,12 @@
 }
 
 /* ===== Pagination ===== */
+@media (max-width:768px) {
+  .pagination-wrapper .text-muted{
+    display: none;
+  }
+}
+
 .pagination-container {
   display: flex;
   justify-content: center;

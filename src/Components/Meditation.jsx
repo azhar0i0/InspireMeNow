@@ -2,10 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import "./designs/Meditation.css";
 import { db } from "../firebase";
 import {
-  collection,
   onSnapshot,
   doc,
-  updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import {
   getStorage,
@@ -16,14 +15,13 @@ import {
 import { FaCloudUploadAlt } from "react-icons/fa";
 
 export default function Meditation() {
-  const [meditations, setMeditations] = useState([]);
-  const [selectedMeditation, setSelectedMeditation] = useState(null);
+  const [meditation, setMeditation] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [form, setForm] = useState({
     heading: "",
     text: "",
-    audio: "", // audio file name
-    audioUrl: "", // audio file URL (if exists)
+    audio: "",
+    audioUrl: "",
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -31,21 +29,21 @@ export default function Meditation() {
   const [toastMsg, setToastMsg] = useState("");
   const fileInputRef = useRef(null);
 
-  // realtime fetch
-  useEffect(() => {
-    const col = collection(db, "meditations");
-    const unsub = onSnapshot(col, (snap) => {
-      const arr = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setMeditations(arr);
-    });
 
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "meditations", "meditation-id"), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setMeditation({ id: "meditation-id", ...data });
+      } else {
+        setMeditation(null);
+      }
+    });
     return () => unsub();
   }, []);
 
-  // open popup for updating an existing meditation only
-  const handleEdit = (meditation) => {
-    if (!meditation) return; // don't allow add
-    setSelectedMeditation(meditation);
+  const handleEdit = () => {
+    if (!meditation) return;
     setForm({
       heading: meditation.heading || "",
       text: meditation.text || "",
@@ -57,7 +55,6 @@ export default function Meditation() {
     setShowPopup(true);
   };
 
-  // handle file selection
   const handleFileSelect = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -73,14 +70,15 @@ export default function Meditation() {
     setForm((p) => ({ ...p, audio: f.name }));
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const handleRemoveSelectedFile = () => {
     setSelectedFile(null);
-    // keep existing audio as-is until user saves
-    setForm((p) => ({ ...p, audio: selectedMeditation?.audio || "", audioUrl: selectedMeditation?.audioUrl || "" }));
+    setForm((p) => ({
+      ...p,
+      audio: meditation?.audio || "",
+      audioUrl: meditation?.audioUrl || "",
+    }));
     setUploadProgress(0);
   };
 
@@ -89,14 +87,8 @@ export default function Meditation() {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
-  // Save -> upload file if selected, then update Firestore
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!selectedMeditation) {
-      setToastMsg("Select a meditation to update.");
-      setTimeout(() => setToastMsg(""), 3000);
-      return;
-    }
 
     setUploading(true);
     setUploadProgress(0);
@@ -106,23 +98,21 @@ export default function Meditation() {
       let audioName = form.audio || "";
 
       if (selectedFile) {
-        // upload with progress
         const storage = getStorage();
-        // Use timestamp prefix to avoid collisions
         const filename = `${Date.now()}_${selectedFile.name}`;
-        const sref = storageRef(storage, `meditations/${selectedMeditation.id}/${filename}`);
+        const sref = storageRef(storage, `meditations/medi/${filename}`);
         const uploadTask = uploadBytesResumable(sref, selectedFile);
 
         await new Promise((resolve, reject) => {
           uploadTask.on(
             "state_changed",
             (snapshot) => {
-              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              const progress = Math.round(
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              );
               setUploadProgress(progress);
             },
-            (err) => {
-              reject(err);
-            },
+            reject,
             async () => {
               audioUrl = await getDownloadURL(uploadTask.snapshot.ref);
               audioName = selectedFile.name;
@@ -132,28 +122,24 @@ export default function Meditation() {
         });
       }
 
-      // prepare update payload
       const payload = {
         heading: form.heading,
         text: form.text,
+        audio: audioName,
+        audioUrl,
       };
-      // set audio name/url if available
-      if (audioName) payload.audio = audioName;
-      if (audioUrl) payload.audioUrl = audioUrl;
 
-      await updateDoc(doc(db, "meditations", selectedMeditation.id), payload);
+      await setDoc(doc(db, "meditations", "meditation-id"), payload, { merge: true });
 
-      setToastMsg("✅ Meditation updated successfully.");
-      setTimeout(() => setToastMsg(""), 3500);
+      setToastMsg("✔ Meditation updated successfully.");
+      setTimeout(() => setToastMsg(""), 3000);
 
-      // close modal & reset
       setShowPopup(false);
-      setSelectedMeditation(null);
       setSelectedFile(null);
       setUploadProgress(0);
     } catch (err) {
       console.error("Update error:", err);
-      setToastMsg("❌ Failed to update. Check console.");
+      setToastMsg("✘ Failed to update. Check console.");
       setTimeout(() => setToastMsg(""), 4000);
     } finally {
       setUploading(false);
@@ -174,56 +160,74 @@ export default function Meditation() {
     <div className="meditation-page">
       <div className="page-header mb-3">
         <h3 className="mb-0">Meditation</h3>
-        <p className="sub-text">Click Update to update heading, text and audio for meditation.</p>
+        <p className="sub-text">
+          Click Update to modify heading, text, and audio for meditation.
+        </p>
       </div>
 
-      {toastMsg && <div className="inline-toast">{toastMsg}</div>}
+      {toastMsg && (
+  <div className={`custom-toast ${toastMsg.includes("✔") ? "success" : "error"}`}>
+    <span className="toast-icon">
+      {toastMsg.includes("✔") ? "✔" : "!"}
+    </span>
+    <span className="toast-text">{toastMsg.replace("✔ ", "").replace("✘ ", "")}</span>
+  </div>
+)}
 
-      <div className="meditation-list">
-        {meditations.length === 0 ? (
-          <p className="no-data">No meditation entries found.</p>
-        ) : (
-          meditations.map((item) => {
-            const displayAudioName = item.audio || item.audioName || extractFileNameFromUrl(item.audioUrl);
-            return (
-              <div className="meditation-card" key={item.id}>
-                <div className="meditation-left">
-                  <h4 className="med-heading">{item.heading}</h4>
 
-                  <div className="audio-display">
-                    <div className="audio-label">Audio</div>
-                    {item.audioUrl ? (
-                      <>
-                        <div className="audio-name">{displayAudioName}</div>
-                        <audio className="audio-player" controls src={item.audioUrl}>
-                          Your browser does not support the audio element.
-                        </audio>
-                      </>
-                    ) : (
-                      <div className="audio-name muted">No audio uploaded</div>
-                    )}
+      {meditation ? (
+        <div className="meditation-card">
+          <div className="meditation-left">
+            <h4 className="med-heading">{meditation.heading}</h4>
+            <div className="audio-display">
+              <div className="audio-label">Audio</div>
+              {meditation.audioUrl ? (
+                <>
+                  <div className="audio-name">
+                    {meditation.audio || extractFileNameFromUrl(meditation.audioUrl)}
                   </div>
-                </div>
+                  <audio className="audio-player" controls src={meditation.audioUrl} />
+                </>
+              ) : (
+                <div className="audio-name muted">No audio uploaded</div>
+              )}
+            </div>
+          </div>
+          <div className="meditation-right">
+            <p className="med-text">{meditation.text}</p>
+          </div>
+          <div className="card-actions">
+            <button className="update-btn" onClick={handleEdit}>
+              Update
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="no-data text-center">
+          <p>No meditation data found.</p>
+          <button
+            className="update-btn"
+            style={{ marginTop: "10px" }}
+            onClick={() => {
+              setForm({ heading: "", text: "", audio: "", audioUrl: "" });
+              setShowPopup(true);
+            }}
+          >
+            Add Meditation
+          </button>
+        </div>
+      )}
 
-                <div className="meditation-right">
-                  <p className="med-text">{item.text}</p>
-                </div>
-
-                <div className="card-actions">
-                  <button className="update-btn" onClick={() => handleEdit(item)}>
-                    Update
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Update Popup */}
+      {/* Popup */}
       {showPopup && (
-        <div className="popup-overlay" onClick={() => !uploading && setShowPopup(false)}>
-          <div className="popup-box slide-in scrollable-invisible" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="popup-overlay"
+          onClick={() => !uploading && setShowPopup(false)}
+        >
+          <div
+            className="popup-box slide-in scrollable-invisible"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="popup-title">Update Meditation</h2>
 
             <form onSubmit={handleSave}>
@@ -241,7 +245,6 @@ export default function Meditation() {
 
               <div className="form-group">
                 <label className="section-label">Audio</label>
-
                 <div
                   className={`upload-box ${selectedFile ? "has-file" : ""}`}
                   onClick={() => fileInputRef.current.click()}
@@ -252,28 +255,41 @@ export default function Meditation() {
                   {selectedFile ? (
                     <div className="upload-text">
                       <div className="fw-semibold">{selectedFile.name}</div>
-                      <small className="muted">Click or drag another file to replace</small>
+                      <small className="muted">
+                        Click or drag another file to replace
+                      </small>
                       <div className="file-actions">
-                        <button type="button" className="small-btn" onClick={handleRemoveSelectedFile}>
+                        <button
+                          type="button"
+                          className="small-btn"
+                          onClick={handleRemoveSelectedFile}
+                        >
                           Remove
                         </button>
                       </div>
                     </div>
                   ) : form.audioUrl ? (
                     <div className="upload-text">
-                      <div className="fw-semibold">{form.audio || extractFileNameFromUrl(form.audioUrl)}</div>
-                      <small className="muted">Existing audio — upload to replace</small>
-                      <audio className="audio-player" controls src={form.audioUrl}>
-                        Your browser does not support the audio element.
-                      </audio>
+                      <div className="fw-semibold">
+                        {form.audio || extractFileNameFromUrl(form.audioUrl)}
+                      </div>
+                      <small className="muted">
+                        Existing audio — upload to replace
+                      </small>
+                      <audio
+                        className="audio-player"
+                        controls
+                        src={form.audioUrl}
+                      />
                     </div>
                   ) : (
                     <div className="upload-text">
-                      <div className="fw-semibold">Click to upload audio or drag and drop</div>
+                      <div className="fw-semibold">
+                        Click to upload audio or drag and drop
+                      </div>
                       <small className="muted">Accepts .mp3, .wav</small>
                     </div>
                   )}
-
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -285,7 +301,10 @@ export default function Meditation() {
 
                 {uploading && (
                   <div className="upload-progress">
-                    <div className="progress-bar" style={{ width: `${uploadProgress}%` }} />
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
                     <div className="progress-text">{uploadProgress}%</div>
                   </div>
                 )}
@@ -311,9 +330,10 @@ export default function Meditation() {
                 >
                   Cancel
                 </button>
-
                 <button type="submit" className="save-btn" disabled={uploading}>
-                  {uploading ? `Uploading ${uploadProgress}%` : "Save Changes"}
+                  {uploading
+                    ? `Uploading ${uploadProgress}%`
+                    : "Save Changes"}
                 </button>
               </div>
             </form>

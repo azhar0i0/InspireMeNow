@@ -49,8 +49,8 @@ const AddNewEntry = ({
       allowVoice: true,
       multipleAffirmations: true,
     },
-    miniexercise: { allowText: true, allowVoice: false },
-    reflections: { allowText: true, allowVoice: false },
+    miniexercise: { allowText: true, allowVoice: true },
+    reflections: { allowText: true, allowVoice: true },
     voicejourney: { allowText: true, allowVoice: true, noHeading: true },
   };
 
@@ -76,7 +76,6 @@ const AddNewEntry = ({
     }, {})
   );
 
-  // ✅ Toast disappear logic
   useEffect(() => {
     if (toastMsg) {
       const timer = setTimeout(() => setToastMsg(""), 3000);
@@ -84,7 +83,6 @@ const AddNewEntry = ({
     }
   }, [toastMsg]);
 
-  // ✅ Load data in Edit mode
   useEffect(() => {
     if (editingEntry) {
       const updatedTabData = tabs.reduce((acc, tab) => {
@@ -95,7 +93,6 @@ const AddNewEntry = ({
 
         let affirmations = [""];
         if (tab === "affirmation" && info.length > 0) {
-          // 🔑 Collect text1, text2, text3... fields
           const item = info[0];
           affirmations = Object.keys(item)
             .filter((k) => k.startsWith("text"))
@@ -123,7 +120,6 @@ const AddNewEntry = ({
       setVersionName(editingEntry.versionId || "V1");
       setMakeLive(!!editingEntry.versionData?.live);
     } else {
-      // Fresh entry
       const numbers = existingVersions
         .map((v) => {
           const m = (v || "").match(/^V(\d+)$/i);
@@ -153,7 +149,6 @@ const AddNewEntry = ({
     }
   }, [editingEntry, existingVersions]);
 
-  // ✅ Text + Affirmation handler
   const handleTextChange = (e, field, index = null) => {
     if (activeTab === "affirmation" && index !== null) {
       setTabData((prev) => {
@@ -193,7 +188,6 @@ const AddNewEntry = ({
     });
   };
 
-  // ✅ File upload
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -214,7 +208,6 @@ const AddNewEntry = ({
     }));
   };
 
-  // ✅ Save Handler
   const handleSave = async () => {
     if (!selectedMood || selectedMood === "All moods") {
       setToastMsg("⚠ Please select a valid mood before publishing.");
@@ -224,7 +217,6 @@ const AddNewEntry = ({
     try {
       setLoading(true);
 
-      // 🔑 Transform affirmations into text1, text2... before saving
       const transformedTabData = {
         ...tabData,
         affirmation: {
@@ -253,12 +245,12 @@ const AddNewEntry = ({
           tabs
         );
       }
-      setToastMsg("✅ Entry saved successfully!");
+      setToastMsg("✔ Entry saved successfully!");
       setShowAddModal(false);
       await fetchEntries(selectedMood);
     } catch (error) {
       console.error(error);
-      setToastMsg("❌ Failed to save entry.");
+      setToastMsg("✘ Failed to save entry.");
     } finally {
       setLoading(false);
     }
@@ -268,22 +260,16 @@ const AddNewEntry = ({
     <>
       {toastMsg && (
         <div
-          className="toast-message"
-          style={{
-            position: "fixed",
-            top: "20px",
-            right: "20px",
-            background: "#333",
-            color: "#fff",
-            padding: "10px 20px",
-            borderRadius: "8px",
-            boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
-            zIndex: 2000,
-            fontSize: "0.95rem",
-            fontWeight: "500",
-          }}
+          className={`custom-toast ${
+            toastMsg.includes("✔") ? "success" : "error"
+          }`}
         >
-          {toastMsg}
+          <span className="toast-icon">
+            {toastMsg.includes("✔") ? "✔" : "!"}
+          </span>
+          <span className="toast-text">
+            {toastMsg.replace("✔ ", "").replace("✘ ", "")}
+          </span>
         </div>
       )}
 
@@ -303,7 +289,6 @@ const AddNewEntry = ({
         </Modal.Header>
 
         <Modal.Body>
-          {/* Tabs */}
           <div className="version-tabs mb-4">
             {tabs.map((tab) => (
               <button
@@ -316,7 +301,6 @@ const AddNewEntry = ({
             ))}
           </div>
 
-          {/* Heading */}
           {!tabConfig[activeTab].noHeading && (
             <Form.Group className="mb-3">
               <Form.Label className="section-label">Heading</Form.Label>
@@ -329,7 +313,6 @@ const AddNewEntry = ({
             </Form.Group>
           )}
 
-          {/* Affirmations */}
           {tabConfig[activeTab].multipleAffirmations ? (
             <div className="affirmation-section mb-4">
               <Form.Label className="section-label">Affirmations</Form.Label>
@@ -376,7 +359,6 @@ const AddNewEntry = ({
             )
           )}
 
-          {/* Voice Upload */}
           {tabConfig[activeTab].allowVoice && (
             <div
               className="upload-box mb-4 p-4 text-center"
@@ -386,7 +368,9 @@ const AddNewEntry = ({
             >
               <FaCloudUploadAlt className="upload-icon mb-2" />
               {tabData[activeTab]?.file ? (
-                <div className="fw-semibold">{tabData[activeTab].file.name}</div>
+                <div className="fw-semibold">
+                  {tabData[activeTab].file.name}
+                </div>
               ) : tabData[activeTab]?.voice ? (
                 <div className="fw-semibold">
                   {typeof tabData[activeTab].voice === "string"

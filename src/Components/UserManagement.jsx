@@ -174,6 +174,11 @@ const UserManagement = () => {
         </div>
       </div>
 
+      {/* Entries Count */}
+      <div className="text-muted small mt-2">
+        Showing {currentEntries.length} out of {filteredEntries.length} entries
+      </div>
+
       {/* Pagination */}
       {filteredEntries.length > itemsPerPage && (
         <div className="pagination-container mt-3">
