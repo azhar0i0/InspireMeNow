@@ -174,5 +174,5 @@ Special thanks to:
 
 For issues, suggestions, or support:
 
-* **Email:** [your-email@example.com](mailto:azharisworking@gmail.com)
-* **GitHub:** [https://github.com/your-username/inspire-me-now](https://github.com/azhar0i0/inspire-me-now)
+* **Email:** [azharisworking@gmail.com](mailto:azharisworking@gmail.com)
+* **GitHub:** [https://github.com/azhar0i0/inspire-me-now](https://github.com/azhar0i0/inspire-me-now)
