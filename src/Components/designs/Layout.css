@@ -1,0 +1,30 @@
+/* Main layout */
+.layout {
+  width: 100%;
+}
+
+/* Main content */
+.main-content {
+  flex-grow: 1;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+/* On desktop, shift content to make space for sidebar */
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+}
+
+/* Topbar for mobile */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F9E19D;
+  padding: 10px 15px;
+  border-radius: 50px;
+}

@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from "react";
+import "./designs/UserManagement.css";
+import { DEMO_USERS_TABLE as DEMO_USERS } from "./Parts/demoData";
+
+
+const UserManagement = () => {
+  const [entries, setEntries] = useState([]);
+  const [filter, setFilter] = useState("all");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  useEffect(() => {
+    setEntries(DEMO_USERS);
+  }, []);
+
+  // Toggle Status locally
+  const handleToggleStatus = (deviceId, currentStatus) => {
+    setEntries((prev) =>
+      prev.map((u) =>
+        u.deviceId === deviceId ? { ...u, status: !currentStatus } : u
+      )
+    );
+  };
+
+  // Filtering
+  const now = new Date();
+  const filteredEntries = entries.filter((user) => {
+    if (filter === "new") {
+      return user.createdAt && now - user.createdAt <= 24 * 60 * 60 * 1000;
+    }
+    if (filter === "recent") {
+      return user.lastSeen && now - user.lastSeen <= 24 * 60 * 60 * 1000;
+    }
+    if (filter === "active") {
+      return user.status === true;
+    }
+    if (filter === "inactive") {
+      return user.status === false;
+    }
+    return true; // all
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentEntries = filteredEntries.slice(indexOfFirst, indexOfLast);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  const getVisiblePages = () => {
+    const pagesToShow = 3;
+    let start = Math.max(currentPage - 1, 1);
+    let end = start + pagesToShow - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(end - pagesToShow + 1, 1);
+    }
+    const pages = [];
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
+
+  return (
+    <div className="user-management">
+      {/* Header with Dropdown */}
+      <div className="page-header mb-2 d-flex justify-content-between align-items-center">
+        <div>
+          <h3 className="mb-0">User Management</h3>
+          <p>View and manage anonymized user data</p>
+        </div>
+
+        <div className="filter-dropdown">
+          <select
+            className="custom-select"
+            value={filter}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">All Users</option>
+            <option value="new">New Users (last 24h)</option>
+            <option value="recent">Recent Users (last 24h)</option>
+            <option value="active">Active Users</option>
+            <option value="inactive">Inactive Users</option>
+          </select>
+          <span className="dropdown-icon">▼</span>
+        </div>
+      </div>
+
+      {/* User Table */}
+      <div className="user-data-card mt-4">
+        <div className="user-data-header">
+          <h6>User Data</h6>
+        </div>
+
+        <div className="table-responsive">
+          <table className="table user-data-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>DeviceID</th>
+                <th>LastSeen</th>
+                <th>CreatedAt</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentEntries.length > 0 ? (
+                currentEntries.map((entry) => (
+                  <tr key={entry.deviceId}>
+                    <td><p>{entry.id}</p></td>
+                    <td>{entry.deviceId}</td>
+                    <td>{entry.lastSeen ? entry.lastSeen.toLocaleString() : "-"}</td>
+                    <td>{entry.createdAt ? entry.createdAt.toLocaleString() : "-"}</td>
+                    <td>
+                      <button
+                        className={`status-btn ${entry.status ? "active" : "inactive"}`}
+                        onClick={() => handleToggleStatus(entry.deviceId, entry.status)}
+                      >
+                        {entry.status ? "Active" : "Inactive"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    No users found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Entries Count */}
+      <div className="text-muted small mt-2">
+        Showing {currentEntries.length} out of {filteredEntries.length} entries
+      </div>
+
+      {/* Pagination */}
+      {filteredEntries.length > itemsPerPage && (
+        <div className="pagination-container mt-3">
+          <button
+            className="pagination-btn"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            ‹ Prev
+          </button>
+
+          {getVisiblePages().map((p) => (
+            <button
+              key={p}
+              className={`pagination-btn ${currentPage === p ? "active" : ""}`}
+              onClick={() => handlePageChange(p)}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            className="pagination-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next ›
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserManagement;
