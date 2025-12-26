@@ -2,7 +2,14 @@
 import React, { useEffect, useState } from "react";
 import "./designs/Dashboard.css";
 import { FaSmile, FaUsers, FaChartLine, FaCheckCircle } from "react-icons/fa";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 import { Download } from "lucide-react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
